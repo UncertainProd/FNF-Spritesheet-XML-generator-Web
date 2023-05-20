@@ -139,9 +139,9 @@
 
                 <tbody>
                     {#each $spriteframes as spr,i (spr.sprId)}
-                        <tr bind:this={rows[i]} on:click={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
+                        <tr bind:this={rows[i]} on:click|stopPropagation={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
                             <td>
-                                <input type="checkbox" name="select-{spr.sprId}" id="select-{spr.sprId}">
+                                <input type="checkbox" name="select-{spr.sprId}" id="select-{spr.sprId}" on:change={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
                             </td>
                             <td>{spr.animationPrefix}</td>
                             <td>{spr.rect.width}</td>
