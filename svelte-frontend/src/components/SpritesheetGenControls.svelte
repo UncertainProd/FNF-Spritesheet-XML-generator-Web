@@ -2,22 +2,104 @@
     import { fade } from 'svelte/transition'
     import { quadInOut } from 'svelte/easing'
     import Modal from '../components/Modal.svelte';
-    import { openFileDialog, uidgen } from '../utils'
+    import { getImageDimensions, openFileDialog, stringFind, uidgen } from '../utils'
     import { onMount, onDestroy } from 'svelte';
     import AnimationView from './AnimationView.svelte';
     import XmlTableView from './XMLTableView.svelte';
-    import type { SpriteFrameData } from '../spriteframedata';
+    import { SpriteFrameData } from '../spriteframedata';
+    import { spriteframes } from '../stores';
+    import { arrayBufferToBase64 } from '../b64utils';
 
-    export let onPNGAdd;
-    export let setAnimationPrefix;
-    export let addSpritesheetAndXML;
-    // export let onSelectAll;
-    export let spriteframes: SpriteFrameData[];
+    async function onPNGAdd(e: Event)
+    {
+        const target = e.target as HTMLInputElement;
+        let addedPngs = [];
+        for(let f of target.files)
+        {
+            const [ imgWidth, imgHeight ] = await getImageDimensions(f);
+            const newFrame = new SpriteFrameData(f.name + '::' + uidgen.getNewId(), 'single_frame', f, null, null);
+            newFrame.rect.width = imgWidth;
+            newFrame.rect.height = imgHeight;
+            newFrame.frameRect.frameWidth = imgWidth;
+            newFrame.frameRect.frameHeight = imgHeight;
+            newFrame.animationPrefix = f.name.substring(0, f.name.indexOf('.png'));
+
+            addedPngs.push(newFrame);
+        }
+        spriteframes.update((prev) => [...prev, ...addedPngs]);
+    }
+
+    async function addSpritesheetAndXML(e: Event, curSpritesheet: File, curXML: File)
+    {
+        if(curSpritesheet == null)
+        {
+            // TODO: Replace alerts with a message box or something
+            alert('Please select a spritesheet');
+            return true;
+        }
+        if(curXML == null)
+        {
+            // TODO: Replace alerts with a message box or something
+            alert('Please select an XML');
+            return true;
+        }
+
+        const spshData = arrayBufferToBase64(await curSpritesheet.arrayBuffer());
+
+        const xmlstr = await curXML.text();
+        const xmlparser = new DOMParser();
+        const xmldoc = xmlparser.parseFromString(xmlstr, "text/xml");
+        const subtextures = xmldoc.getElementsByTagName("SubTexture");
+        const addedTextures = [];
+        for(let tex of subtextures)
+        {
+            const texname = tex.getAttribute('name');
+            const animPrefixIndex = stringFind(texname, (ch) => { return !(ch >= '0' && ch <= '9') }, true);
+
+            const newFrame = new SpriteFrameData(curSpritesheet.name + '::' + uidgen.getNewId(), 'spritesheet_frame', curSpritesheet, curXML, spshData);
+            newFrame.animationPrefix = texname.substring(0, animPrefixIndex + 1);
+            newFrame.rect = {
+                x: parseInt(tex.getAttribute('x')),
+                y: parseInt(tex.getAttribute('y')),
+                width: parseInt(tex.getAttribute('width')),
+                height: parseInt(tex.getAttribute('height')),
+            };
+            newFrame.frameRect = {
+                frameX: parseInt(tex.getAttribute('frameX')) || 0,
+                frameY: parseInt(tex.getAttribute('frameY')) || 0,
+                frameWidth: parseInt(tex.getAttribute('frameWidth')) || newFrame.rect.width,
+                frameHeight: parseInt(tex.getAttribute('frameHeight')) || newFrame.rect.height
+            };
+
+            addedTextures.push(newFrame);
+        }
+
+        spriteframes.update((prev) => [...prev, ...addedTextures]);
+
+        curSpritesheet = null;
+        curXML = null;
+        return false;
+    }
+
+    function setAnimationPrefix(prefix: string)
+    {
+        // for each selected, change it's animation prefix
+        for(let i = 0; i < $spriteframes.length; i++)
+        {
+            let spr = $spriteframes[i];
+            if(spr.selected)
+            {
+                spr.animationPrefix = prefix;
+                spr.selected = false;
+            }
+        }
+        spriteframes.set($spriteframes);
+    }
 
     $: {
         if(selectAllCheckbox != null)
         {
-            selectAllCheckbox.checked = (spriteframes.length > 0 && spriteframes.every((sprf) => sprf.selected)) || false;
+            selectAllCheckbox.checked = ($spriteframes.length > 0 && $spriteframes.every((sprf) => sprf.selected)) || false;
         }
     }
     
@@ -75,30 +157,29 @@
 
     function onSelectAll(value: boolean)
     {
-        spriteframes = spriteframes.map((sprf) => { sprf.selected = value; return sprf });
-        // spriteframes = spriteframes;
+        spriteframes.update((prev) => prev.map((sprf) => { sprf.selected = value; return sprf }));
     }
 
     function deleteSelection()
     {
         // backward iteration cuz indices get messed up if we don't do that
-        for (let i = spriteframes.length - 1; i >= 0; i--)
+        for (let i = $spriteframes.length - 1; i >= 0; i--)
         {
-            const elem = spriteframes[i];
+            const elem = $spriteframes[i];
 
             if(elem.selected)
             {
-                spriteframes.splice(i, 1);
-                spriteframes = spriteframes; // update svelte state
+                $spriteframes.splice(i, 1);
             }
         }
+        spriteframes.set($spriteframes);
     }
 
     function cloneSelection()
     {
-        for (let i = 0; i < spriteframes.length; i++)
+        for (let i = 0; i < $spriteframes.length; i++)
         {
-            const elem = spriteframes[i];
+            const elem = $spriteframes[i];
             // console.log(elem);
 
             if(elem.selected)
@@ -106,7 +187,7 @@
                 const elemClone = elem.clone();
                 elemClone.selected = false;
                 elemClone.sprId += '-copy' + uidgen.getNewId();
-                spriteframes = [ ...spriteframes, elemClone ];
+                spriteframes.update((prev) => [...prev, elemClone]);
                 elem.selected = false;
             }
         }
@@ -132,8 +213,8 @@
     <button slot="accept-btn" on:click={()=>{ setAnimationPrefix(animPrefixInput.value); animationPrefixModalShown=false }}>Set animation prefix</button>
 </Modal>
 
-<AnimationView bind:showView={animationViewShown} bind:spriteframes={spriteframes} />
-<XmlTableView bind:showView={xmlViewShown} bind:spriteframes={spriteframes} />
+<AnimationView bind:showView={animationViewShown} />
+<XmlTableView bind:showView={xmlViewShown} />
 
 <div id="controls">
     <button>Settings</button>
@@ -158,7 +239,7 @@
     {/if}
     <button on:click={()=>{ openFileDialog(onPNGAdd, 'image/png', true) }}>Add PNGs</button>
     <button on:click={()=>{ spritesheetXMLModalShown = true }}>Add Spritesheet</button>
-    <button on:click={()=>{ console.log(spriteframes); }}>Generate XML</button>
+    <button on:click={()=>{ console.log($spriteframes); }}>Generate XML</button>
 </div>
 
 <style>

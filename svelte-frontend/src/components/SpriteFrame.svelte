@@ -1,48 +1,31 @@
 <script lang="ts">
     // import { base64EncArr } from '../b64utils'
     import { onMount } from 'svelte';
-    import { makeImage } from '../utils';
+    // import { makeImage } from '../utils';
     import type { SpriteFrameData } from '../spriteframedata';
     import { AnimationController } from '../animationcontroller';
+    import { spriteframes } from '../stores';
     let frameCanvas: HTMLCanvasElement;
     let frameDiv: HTMLDivElement;
-    // let test_div;
     export let frameInfo: SpriteFrameData;
-    export let onDelete;
 
     let spriteframesize = 120;
     let showImage = false;
-    // let frameSelected = false;
 
-    // $: if(showImage) { console.log("Showing image") } else { console.log("Hiding image") }
-    // $: {
-    //     if(frameInfo && showImage)
-    //     {
-    //         loadImage().then(()=>{});
-    //     }
-    // }
     let animController: AnimationController;
     onMount(()=>{
         const obs = new IntersectionObserver(async (entries, observer)=>{
             const canv = entries[0];
-            // test_div.innerText = canv.intersectionRatio.toPrecision(4);
             if(canv.isIntersecting && canv.intersectionRatio >= 0.20)
             {
-                // console.log("This is visible: " + JSON.stringify(frameInfo.rect) + " | Intersection Ratio = " + canv.intersectionRatio);
                 if(!showImage)
                 {
                     // test_div.innerText += ' | showing';
                     await loadImage();
                 }
-                else
-                {
-                    // test_div.innerText += ' | shown';
-                }
             }
             else
             {
-                // console.log("Ratio: " + canv.intersectionRatio);
-                // test_div.innerText += ' | hiding';
                 showImage = false;
             }
         }, {
@@ -63,10 +46,11 @@
             loadImage().then(()=>{});
             // console.log("Loading imageee");
         }
-        if(frameInfo)
-        {
-            console.log("Spriteframe: " + frameInfo.sprId);
-        }
+        // console.log("changeingggg");
+        // if(frameInfo)
+        // {
+        //     console.log("Spriteframe: " + frameInfo.sprId);
+        // }
     }
 
     async function loadImage() {
@@ -93,7 +77,20 @@
     function handleClick()
     {
         frameInfo.selected = !frameInfo.selected;
-        frameInfo = frameInfo;
+    }
+
+    function onDelete(sprframe: SpriteFrameData)
+    {
+        const ind = $spriteframes.indexOf(sprframe);
+        if(ind !== -1)
+        {
+            $spriteframes.splice(ind, 1);
+            spriteframes.set($spriteframes);
+        }
+        else
+        {
+            console.log("[ERROR] Could not find element: " + sprframe);
+        }
     }
 </script>
 

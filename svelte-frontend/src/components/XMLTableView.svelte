@@ -3,11 +3,11 @@
     import type { SpriteFrameData } from "../spriteframedata";
     import { AnimationController } from "../animationcontroller";
     import { onMount } from "svelte";
+    import { spriteframes } from '../stores';
 
     export let showView = false;
-    export let spriteframes:SpriteFrameData[] = [];
 
-    let currSelectedRow = 0;
+    let currSelectedRow:number|null = null;
     let curSprFrame:SpriteFrameData = null;
 
     let _animScaleInput:HTMLInputElement = null;
@@ -64,12 +64,8 @@
             animController.clearCanvas();
             animController.drawImage(animController.curImgs[0], sprframe, true);
 
-            spriteframes = spriteframes;
+            // spriteframes = spriteframes;
             // sprframe = sprframe;
-            // // draw box
-            // animController.context.beginPath();
-            // animController.context.rect(0, 0, sprframe.frameRect.frameWidth * animController.animationScale, sprframe.frameRect.frameHeight * animController.animationScale);
-            // animController.context.stroke();
         }
     }
 
@@ -83,12 +79,13 @@
     function _handleRowClick(index: number)
     {
         currSelectedRow = index;
-        curSprFrame = spriteframes[index];
+        curSprFrame = $spriteframes[index];
         for(const r of rows)
         {
             r.style.backgroundColor = 'white';
         }
         rows[index].style.backgroundColor = 'blue';
+        // console.log(`selected: ${currSelectedRow} | frame = ${curSprFrame.sprId}`);
         _frameXInput.value = '' + curSprFrame.frameRect.frameX;
         _frameYInput.value = '' + curSprFrame.frameRect.frameY;
         _frameWidthInput.value = '' + curSprFrame.frameRect.frameWidth;
@@ -110,21 +107,14 @@
         curSprFrame.transform.scaleY = +_scaleYInput.value;
         curSprFrame.transform.flipX = _flipXInput.checked;
         curSprFrame.transform.flipY = _flipYInput.checked;
-        curSprFrame = curSprFrame;
+        // curSprFrame = curSprFrame;
+        spriteframes.set($spriteframes);
         drawFrameWithBox(curSprFrame).then(()=>{});
     }
-    // function _handleRowClick(row: HTMLTableRowElement)
-    // {
-    //     for(const r of rows)
-    //     {
-    //         r.style.backgroundColor = 'white';
-    //     }
-    //     row.style.backgroundColor = 'blue';
-    // }
 </script>
 
 
-<Modal bind:showModal={showView} closeButtonMsg={"Save and Close"} onClose={()=>{ spriteframes = spriteframes }}>
+<Modal bind:showModal={showView} closeButtonMsg={"Save and Close"}>
     <div slot="header">
         <h4>XML View</h4>
     </div>
@@ -147,7 +137,7 @@
                 </thead>
 
                 <tbody>
-                    {#each spriteframes as spr,i (spr.sprId)}
+                    {#each $spriteframes as spr,i (spr.sprId)}
                         <tr bind:this={rows[i]} on:click={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
                             <td>
                                 <input type="checkbox" name="select-{spr.sprId}" id="select-{spr.sprId}">

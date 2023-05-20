@@ -3,9 +3,9 @@
     import { AnimationController } from '../animationcontroller';
     import { onMount } from "svelte";
     import type { SpriteFrameData } from "../spriteframedata";
+    import { spriteframes } from '../stores'
 
     export let showView = false;
-    export let spriteframes: SpriteFrameData[];
 
     let canvasElement:HTMLCanvasElement = null;
 
@@ -45,7 +45,7 @@
         {
             prefixes = new Map();
             prefixArray = [];
-            for(let spr of spriteframes)
+            for(let spr of $spriteframes)
             {
                 if(!prefixes.has(spr.animationPrefix))
                 {
