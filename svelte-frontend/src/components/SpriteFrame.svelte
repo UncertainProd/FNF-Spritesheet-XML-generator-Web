@@ -1,7 +1,5 @@
 <script lang="ts">
-    // import { base64EncArr } from '../b64utils'
     import { onMount } from 'svelte';
-    // import { makeImage } from '../utils';
     import type { SpriteFrameData } from '../spriteframedata';
     import { AnimationController } from '../animationcontroller';
     import { spriteframes } from '../stores';
@@ -41,36 +39,19 @@
     });
 
     $: {
-        if(showImage)
+        if(showImage && frameInfo._changed)
         {
             loadImage().then(()=>{});
-            // console.log("Loading imageee");
+            frameInfo._changed = false;
+            // console.log("Loading imageee for: " + frameInfo.sprId);
         }
-        // console.log("changeingggg");
-        // if(frameInfo)
-        // {
-        //     console.log("Spriteframe: " + frameInfo.sprId);
-        // }
     }
 
     async function loadImage() {
         await animController.initFrames([ frameInfo ]);
         animController.clearCanvas();
         animController.animationScale = spriteframesize/Math.max(frameInfo.frameRect.frameWidth, frameInfo.frameRect.frameHeight);
-        animController.drawImage(animController.curImgs[0], frameInfo, false, false);
-
-        animController.context.clearRect(
-            frameInfo.frameRect.frameWidth * animController.animationScale * frameInfo.transform.scaleX, 
-            0, 
-            animController.context.canvas.width, 
-            animController.context.canvas.height
-        );
-        animController.context.clearRect(
-            0, 
-            frameInfo.frameRect.frameHeight * animController.animationScale * frameInfo.transform.scaleY, 
-            animController.context.canvas.width, 
-            animController.context.canvas.height
-        );
+        animController.drawImage(animController.curImgs[0], frameInfo, false);
         showImage = true;
     }
 
@@ -96,7 +77,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div on:click={handleClick} bind:this={frameDiv} class="frame-container" style="width: {spriteframesize}px;">
-    <input type="checkbox" name="selected-chkbox" id="selected-chkbox" bind:checked={frameInfo.selected} />
+    <input type="checkbox" name="selected-chkbox" id="selected-chkbox" checked={frameInfo.selected} />
     <canvas style="display: {(showImage) ? 'block' : 'none'};" width="{spriteframesize}px" height="{spriteframesize}px" bind:this={frameCanvas}>
         Rendering Error!
         Please use a browser that supports canvas rendering! (like Chrome or Firefox)

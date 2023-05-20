@@ -26,7 +26,8 @@ export class SpriteFrameData
         frameY: number,
         frameWidth: number,
         frameHeight: number
-    }
+    };
+    _changed: boolean;
 
     constructor(id:string, type: SpriteframeType, imgfileref: File, xmlfileref: File|null, spritesheetDataB64: string|null)
     {
@@ -55,6 +56,7 @@ export class SpriteFrameData
             frameWidth: null,
             frameHeight: null
         };
+        this._changed = false;
     }
 
     clone()
@@ -68,33 +70,3 @@ export class SpriteFrameData
         return clonedFrame;
     }
 }
-
-/*
-{
-    sprId: f.name + '::' + uidgen.getNewId(),
-    type: 'single_frame',
-    imgfileref: f,
-    xmlfileref: curXML,
-    selected: false,
-    spritesheetDataB64: spshData,
-    animationPrefix: '',
-    rect: {
-        x: null,
-        y: null,
-        width: imgWidth,
-        height: imgHeight,
-    },
-    transform: {
-        scaleX: 1.0,
-        scaleY: 1.0,
-        flipX: false,
-        flipY: false
-    },
-    frameRect: {
-        frameX: 0,
-        frameY: 0,
-        frameWidth: null,
-        frameHeight: null
-    }
-}
-*/

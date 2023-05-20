@@ -56,12 +56,8 @@ export class AnimationController {
             const img = this.curImgs[this.curFrameIndex];
             this.curFrameIndex = (this.curFrameIndex + 1) % this.curFrames.length;
 
-            // console.log("Clearing canvas");
             this.clearCanvas();
             
-            // console.log(`Drawing: { x: ${curFrame.rect.x}, y: ${curFrame.rect.y}, width: ${curFrame.rect.width}, height: ${curFrame.rect.height} }`);
-            // console.log(`Frame: { x: ${curFrame.frameRect.frameX}, y: ${curFrame.frameRect.frameY}, width: ${curFrame.frameRect.frameWidth}, height: ${curFrame.frameRect.frameHeight} }`);
-            // drawFrameImageTo(img, { rect: curFrame.rect, frameRect: curFrame.frameRect }, this.context, this.animationScale);
             this.drawImage(img, curFrame);
             this.ticks = 0;
         }
@@ -110,26 +106,24 @@ export class AnimationController {
             this.context.stroke();
         }
 
-        // this.context.drawImage(
-        //     frameImg,
-        //     r.x, r.y, r.width, r.height, 
-        //     -frame.frameX * this.animationScale,
-        //     -frame.frameY * this.animationScale,
-        //     r.width * this.animationScale,
-        //     r.height * this.animationScale
-        // );
-
+        this.context.restore();
 
         if(withClipping)
         {
             // scuffed clipping logic
-            this.context.clearRect(frame.frameWidth, 0, this.context.canvas.width, this.context.canvas.height);
-            this.context.clearRect(0, frame.frameHeight, frame.frameWidth, this.context.canvas.height);
+            this.context.clearRect(
+                frame.frameWidth * this.animationScale * transform.scaleX, 
+                0, 
+                this.context.canvas.width, 
+                this.context.canvas.height
+            );
+            this.context.clearRect(
+                0, 
+                frame.frameHeight * this.animationScale * transform.scaleY, 
+                this.context.canvas.width, 
+                this.context.canvas.height
+            );
         }
-        // // scuffed clipping logic
-        // this.context.clearRect(frame.frameWidth * this.animationScale, 0, this.context.canvas.width - frame.frameWidth * this.animationScale, this.context.canvas.height);
-        // this.context.clearRect(0, frame.frameHeight * this.animationScale, frame.frameWidth * this.animationScale, this.context.canvas.height - frame.frameHeight * this.animationScale);
-        this.context.restore();
     }
 
     async initFrames(frames: SpriteFrameData[])
@@ -138,9 +132,6 @@ export class AnimationController {
         this.curFrames = frames;
         this.curFrameIndex = 0;
         this.curImgs = await Promise.all(this.curFrames.map(async (elem) => { let img = await makeImage(elem); return img; }));
-        // canvasContext.canvas.width = window.innerWidth * 0.9;
-        // canvasContext.canvas.height = window.innerHeight * 0.9;
-        // this.animId = requestAnimationFrame(this.tick);
     }
 
     play()

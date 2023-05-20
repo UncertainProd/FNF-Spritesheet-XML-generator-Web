@@ -107,6 +107,7 @@
         curSprFrame.transform.scaleY = +_scaleYInput.value;
         curSprFrame.transform.flipX = _flipXInput.checked;
         curSprFrame.transform.flipY = _flipYInput.checked;
+        curSprFrame._changed = true;
         // curSprFrame = curSprFrame;
         spriteframes.set($spriteframes);
         drawFrameWithBox(curSprFrame).then(()=>{});
