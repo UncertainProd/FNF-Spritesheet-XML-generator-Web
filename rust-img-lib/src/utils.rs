@@ -1,6 +1,7 @@
 use std::{collections::hash_map::DefaultHasher, hash::{Hash, Hasher}};
 
-use image::ImageEncoder;
+use image::{ImageEncoder, GenericImageView};
+use wasm_bindgen::JsValue;
 
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -21,11 +22,52 @@ pub fn encode_image_as_png(img: image::DynamicImage) -> Vec<u8>
     out_vec
 }
 
-pub fn _get_hash_from_image_bytes(img_bytes: &Vec<u8>) -> u64
+pub fn get_hash_from_image_bytes(img_bytes: &[u8]) -> u64
 {
     let mut hasher = DefaultHasher::new();
     img_bytes.hash(&mut hasher);
     hasher.finish()
+}
+
+/// A Rust port of the `getbbox()` function from Python's PIL library
+/// 
+/// Returns a tuple containing (left, top, right, bottom) coords of the image. If the entire image is transparent (aka less than the `alpha_threshold`) then it returns `None`
+/// 
+/// Refer [`GETBBOX`](https://github.com/python-pillow/Pillow/blob/7e8b11b1593583069bd12ba1d541a42940d669f6/src/libImaging/GetBBox.c#L33) for the main reference behind this algorithm
+pub fn get_bounding_box(img: &image::DynamicImage, alpha_threshold: Option<u8>) -> Option<(u32, u32, u32, u32)>
+{
+    let alpha_threshold = alpha_threshold.unwrap_or(0);
+    let mut bb_left: u32 = img.width();
+    let mut bb_right: u32 = 0;
+    let mut bb_top: i64 = -1;
+    let mut bb_bottom: u32 = 0;
+    for (x, y, color) in img.pixels()
+    {
+        if color.0[3] > alpha_threshold
+        {
+            if x < bb_left
+            {
+                bb_left = x;
+            }
+
+            if x >= bb_right {
+                bb_right = x + 1;
+            }
+
+            if bb_top < 0
+            {
+                bb_top = y as i64;
+            }
+            bb_bottom = y + 1;
+        }
+    }
+
+    if bb_top < 0
+    {
+        return None;
+    }
+
+    Some((bb_left, bb_top as u32, bb_right, bb_bottom))
 }
 
 #[derive(Debug)]

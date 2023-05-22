@@ -23,6 +23,8 @@ web-sys = "0.3.61"
 image = "0.24.6"
 base64 = "0.21.0"
 js-sys = "0.3.61"
+zip = { version = "0.6.6", default-features = false, features = [ "deflate" ] }
+quick-xml = "0.28.2"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

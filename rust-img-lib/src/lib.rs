@@ -1,5 +1,6 @@
 mod utils;
 mod algorithms;
+mod textureatlas_format;
 
 use base64::Engine;
 use image::{imageops, ImageEncoder};

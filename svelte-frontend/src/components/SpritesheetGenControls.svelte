@@ -2,13 +2,15 @@
     import { fade } from 'svelte/transition'
     import { quadInOut } from 'svelte/easing'
     import Modal from '../components/Modal.svelte';
-    import { getImageDimensions, openFileDialog, stringFind, uidgen } from '../utils'
+    import { getImageDimensions, openFileDialog, saveFile, stringFind, uidgen } from '../utils'
     import { onMount, onDestroy } from 'svelte';
     import AnimationView from './AnimationView.svelte';
     import XmlTableView from './XMLTableView.svelte';
     import { SpriteFrameData } from '../spriteframedata';
     import { spriteframes } from '../stores';
-    import { arrayBufferToBase64 } from '../b64utils';
+    import { arrayBufferToBase64, base64DecToArr } from '../b64utils';
+    import type { Wasm_T } from '../global';
+    export let wasm: Wasm_T;
 
     async function onPNGAdd(e: Event)
     {
@@ -192,6 +194,59 @@
             }
         }
     }
+
+    async function generateSpritesheetXML()
+    {
+        const { GrowingPacker } = wasm;
+        const growingpacker = GrowingPacker.new();
+        for(const sprdat of $spriteframes)
+        {
+            switch (sprdat.type) {
+                case 'single_frame':
+                    console.log("Reading single frame" + sprdat.sprId);
+                    const abuf = await sprdat.imgfileref.arrayBuffer();
+                    growingpacker.add_single_frame(
+                        sprdat.sprId,
+                        new Uint8Array(abuf),
+                        sprdat.animationPrefix,
+                        sprdat.transform.scaleX,
+                        sprdat.transform.scaleY,
+                        sprdat.transform.flipX,
+                        sprdat.transform.flipY,
+                        BigInt(sprdat.frameRect.frameX),
+                        BigInt(sprdat.frameRect.frameY),
+                        BigInt(sprdat.frameRect.frameWidth),
+                        BigInt(sprdat.frameRect.frameHeight),
+                    );
+                    break;
+                case 'spritesheet_frame':
+                    console.log("Putting spritesheet frame" + sprdat.sprId);
+                    growingpacker.add_spritesheet_frame(
+                        sprdat.sprId,
+                        base64DecToArr(sprdat.spritesheetDataB64, null),
+                        '',
+                        sprdat.animationPrefix,
+                        sprdat.rect.x,
+                        sprdat.rect.y,
+                        sprdat.rect.width,
+                        sprdat.rect.height,
+                        sprdat.transform.scaleX,
+                        sprdat.transform.scaleY,
+                        sprdat.transform.flipX,
+                        sprdat.transform.flipY,
+                        BigInt(sprdat.frameRect.frameX),
+                        BigInt(sprdat.frameRect.frameY),
+                        BigInt(sprdat.frameRect.frameWidth),
+                        BigInt(sprdat.frameRect.frameHeight)
+                    )
+                    break;
+                default:
+                    break;
+            }
+        }
+        const finalImage = growingpacker.make_packed_image();
+        saveFile(finalImage, 'testing.png');
+    }
 </script>
 
 <Modal bind:showModal={spritesheetXMLModalShown}>
@@ -239,7 +294,7 @@
     {/if}
     <button on:click={()=>{ openFileDialog(onPNGAdd, 'image/png', true) }}>Add PNGs</button>
     <button on:click={()=>{ spritesheetXMLModalShown = true }}>Add Spritesheet</button>
-    <button on:click={()=>{ console.log($spriteframes); }}>Generate XML</button>
+    <button on:click={()=>{ generateSpritesheetXML().then(()=>{}) }}>Generate XML</button>
 </div>
 
 <style>

@@ -18,7 +18,7 @@
 </div>
 
 
-<SpritesheetGenControls />
+<SpritesheetGenControls wasm={wasm} />
 
 
 <style>

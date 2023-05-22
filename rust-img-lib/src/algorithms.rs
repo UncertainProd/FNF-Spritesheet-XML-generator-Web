@@ -1,14 +1,17 @@
 pub mod iconpacker;
+pub mod spritesheetpackers;
+
+use std::hash::Hash;
 
 use crate::utils::PackError;
 
 /// A struct that represents a rectangle for the packing algorithm.
-#[derive(Clone, Copy, Debug)]
-pub struct PackingRectangle
+#[derive(Clone, Copy, Debug, PartialEq, Hash, Eq)]
+pub struct PackingRectangle<T: Hash>
 {
     pub width: u32,
     pub height: u32,
-    pub id: u64
+    pub id: T
 }
 
 /// A trait representing a generic Packing Algorithm.
