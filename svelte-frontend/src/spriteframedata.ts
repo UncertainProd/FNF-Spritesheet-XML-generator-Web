@@ -7,7 +7,7 @@ export class SpriteFrameData
     imgfileref: File;
     xmlfileref: File | null;
     selected: boolean; // refactor?
-    spritesheetDataB64: string | null;
+    spritesheetId: string | null;
     animationPrefix: string;
     rect: {
         x: number | null,
@@ -29,14 +29,14 @@ export class SpriteFrameData
     };
     _changed: boolean;
 
-    constructor(id:string, type: SpriteframeType, imgfileref: File, xmlfileref: File|null, spritesheetDataB64: string|null)
+    constructor(id:string, type: SpriteframeType, imgfileref: File, xmlfileref: File|null, spritesheetId: string|null)
     {
         this.sprId = id;
         this.type = type;
         this.imgfileref = imgfileref;
         this.xmlfileref = xmlfileref;
         this.selected = false;
-        this.spritesheetDataB64 = spritesheetDataB64;
+        this.spritesheetId = spritesheetId; // index into the spritesheet cache
         this.animationPrefix = '';
         this.rect = {
             x: 0,
@@ -61,7 +61,7 @@ export class SpriteFrameData
 
     clone()
     {
-        const clonedFrame = new SpriteFrameData(this.sprId, this.type, this.imgfileref, this.xmlfileref, this.spritesheetDataB64);
+        const clonedFrame = new SpriteFrameData(this.sprId, this.type, this.imgfileref, this.xmlfileref, this.spritesheetId);
         clonedFrame.selected = this.selected;
         clonedFrame.animationPrefix = this.animationPrefix;
         clonedFrame.rect = this.rect;

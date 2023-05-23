@@ -81,7 +81,8 @@ impl ImageCache {
 pub struct GrowingPacker
 {
     frame_image_cache: ImageCache,
-    frames: Vec<FrameInfo>
+    frames: Vec<FrameInfo>,
+    _spritesheet_store: HashMap<String, image::DynamicImage>
 }
 
 #[wasm_bindgen]
@@ -91,8 +92,14 @@ impl GrowingPacker
     {
         Self {
             frame_image_cache: ImageCache::new(),
-            frames: vec![]
+            frames: vec![],
+            _spritesheet_store: HashMap::new()
         }
+    }
+
+    pub fn add_image_to_store(&mut self, img_key: String, img_data: Vec<u8>)
+    {
+        self._spritesheet_store.insert(img_key, image::load_from_memory(&img_data).expect("Expected valid image. Got invalid image!"));
     }
 
     pub fn add_single_frame(
@@ -129,7 +136,7 @@ impl GrowingPacker
     pub fn add_spritesheet_frame(
         &mut self,
         spr_id: String,
-        img_data: Vec<u8>,
+        spritesheet_id: String,
         xml_data: String,
         animation_prefix: String,
         rect_x: u32,
@@ -147,7 +154,10 @@ impl GrowingPacker
     )
     {
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
-            image::load_from_memory(&img_data).unwrap().crop_imm(rect_x, rect_y, rect_width, rect_height)
+            self._spritesheet_store
+                .get(&spritesheet_id)
+                .expect("Key not in map!")
+                .crop_imm(rect_x, rect_y, rect_width, rect_height)
         );
 
         let cur_frameinfo = FrameInfo {

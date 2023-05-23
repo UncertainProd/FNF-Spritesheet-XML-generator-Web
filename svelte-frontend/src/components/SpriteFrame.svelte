@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import type { SpriteFrameData } from '../spriteframedata';
     import { AnimationController } from '../animationcontroller';
-    import { spriteframes } from '../stores';
+    import { spriteframes, spritesheet_map } from '../stores';
     let frameCanvas: HTMLCanvasElement;
     let frameDiv: HTMLDivElement;
     export let frameInfo: SpriteFrameData;
@@ -58,6 +58,11 @@
     function handleClick()
     {
         frameInfo.selected = !frameInfo.selected;
+        // frameInfo.imgfileref.arrayBuffer().then((abuf) => {
+        //     crypto.subtle.digest('SHA-1', abuf).then((dgst) => {
+        //         console.log(arrayBufferToBase64(dgst))
+        //     })
+        // });
     }
 
     function onDelete(sprframe: SpriteFrameData)
@@ -67,6 +72,27 @@
         {
             $spriteframes.splice(ind, 1);
             spriteframes.set($spriteframes);
+
+            if(frameInfo.type === 'spritesheet_frame')
+            {
+                const hash = frameInfo.spritesheetId;
+                const [spshdata, count] = $spritesheet_map.get(hash);
+                const newCount = count - 1;
+                if(newCount > 0)
+                {
+                    spritesheet_map.update((prev) => {
+                        prev.set(hash, [spshdata, newCount])
+                        return prev;
+                    });
+                }
+                else
+                {
+                    spritesheet_map.update((prev) => {
+                        prev.delete(hash);
+                        return prev;
+                    });
+                }
+            }
         }
         else
         {

@@ -2,12 +2,12 @@
     import { fade } from 'svelte/transition'
     import { quadInOut } from 'svelte/easing'
     import Modal from '../components/Modal.svelte';
-    import { getImageDimensions, openFileDialog, saveFile, stringFind, uidgen } from '../utils'
+    import { getImageDimensions, hashImage, openFileDialog, saveFile, stringFind, uidgen } from '../utils'
     import { onMount, onDestroy } from 'svelte';
     import AnimationView from './AnimationView.svelte';
     import XmlTableView from './XMLTableView.svelte';
     import { SpriteFrameData } from '../spriteframedata';
-    import { spriteframes } from '../stores';
+    import { spriteframes, spritesheet_map } from '../stores';
     import { arrayBufferToBase64, base64DecToArr } from '../b64utils';
     import type { Wasm_T } from '../global';
     export let wasm: Wasm_T;
@@ -46,7 +46,18 @@
             return true;
         }
 
-        const spshData = arrayBufferToBase64(await curSpritesheet.arrayBuffer());
+        let spshArrayBuf = await curSpritesheet.arrayBuffer();
+        const imgHash = await hashImage(new Uint8Array(spshArrayBuf))
+        const spshData = arrayBufferToBase64(spshArrayBuf);
+        spritesheet_map.update((prev) => {
+            if(!prev.has(imgHash))
+            {
+                prev.set(imgHash, [spshData, 0]);
+                // const [_, count] = prev.get(imgHash);
+                // prev.set(imgHash, [spshData, count+1]);
+            }
+            return prev;
+        });
 
         const xmlstr = await curXML.text();
         const xmlparser = new DOMParser();
@@ -58,7 +69,7 @@
             const texname = tex.getAttribute('name');
             const animPrefixIndex = stringFind(texname, (ch) => { return !(ch >= '0' && ch <= '9') }, true);
 
-            const newFrame = new SpriteFrameData(curSpritesheet.name + '::' + uidgen.getNewId(), 'spritesheet_frame', curSpritesheet, curXML, spshData);
+            const newFrame = new SpriteFrameData(curSpritesheet.name + '::' + uidgen.getNewId(), 'spritesheet_frame', curSpritesheet, curXML, imgHash);
             newFrame.animationPrefix = texname.substring(0, animPrefixIndex + 1);
             newFrame.rect = {
                 x: parseInt(tex.getAttribute('x')),
@@ -77,11 +88,24 @@
         }
 
         spriteframes.update((prev) => [...prev, ...addedTextures]);
+        spritesheet_map.update((prev) => {
+            const [data, count] = prev.get(imgHash);
+            prev.set(imgHash, [data, count + subtextures.length]);
+            return prev;
+        });
 
         curSpritesheet = null;
         curXML = null;
         return false;
     }
+
+    // document.addEventListener('keypress', (e) => {
+    //     console.log('spsh map: ');
+    //     for(const x of $spritesheet_map.entries())
+    //     {
+    //         console.log(x[0] + '   count: ' + x[1][1]);
+    //     }
+    // });
 
     function setAnimationPrefix(prefix: string)
     {
@@ -172,6 +196,26 @@
             if(elem.selected)
             {
                 $spriteframes.splice(i, 1);
+                if(elem.type === 'spritesheet_frame')
+                {
+                    const hash = elem.spritesheetId;
+                    const [spshdata, count] = $spritesheet_map.get(hash);
+                    const newCount = count - 1;
+                    if(newCount > 0)
+                    {
+                        spritesheet_map.update((prev) => {
+                            prev.set(hash, [spshdata, newCount])
+                            return prev;
+                        });
+                    }
+                    else
+                    {
+                        spritesheet_map.update((prev) => {
+                            prev.delete(hash);
+                            return prev;
+                        });
+                    }
+                }
             }
         }
         spriteframes.set($spriteframes);
@@ -199,6 +243,13 @@
     {
         const { GrowingPacker } = wasm;
         const growingpacker = GrowingPacker.new();
+        for(const items of $spritesheet_map)
+        {
+            const key = items[0];
+            const data = items[1][0];
+            console.log("adding " + key + " to store!");
+            growingpacker.add_image_to_store(key, base64DecToArr(data, null));
+        }
         for(const sprdat of $spriteframes)
         {
             switch (sprdat.type) {
@@ -223,7 +274,7 @@
                     console.log("Putting spritesheet frame" + sprdat.sprId);
                     growingpacker.add_spritesheet_frame(
                         sprdat.sprId,
-                        base64DecToArr(sprdat.spritesheetDataB64, null),
+                        sprdat.spritesheetId,
                         '',
                         sprdat.animationPrefix,
                         sprdat.rect.x,

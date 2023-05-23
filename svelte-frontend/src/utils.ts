@@ -1,5 +1,7 @@
 import { arrayBufferToBase64, base64EncArr } from './b64utils'
 import type { SpriteFrameData } from './spriteframedata';
+import { get as getFromStore } from 'svelte/store';
+import { spritesheet_map } from './stores';
 
 /**
  * 
@@ -93,7 +95,15 @@ export async function makeImage(frameInfo: SpriteFrameData): Promise<HTMLImageEl
     }
     else
     {
-        imgdata = 'data:image/png;base64,' + frameInfo.spritesheetDataB64;
+        const spshB64 = getFromStore(spritesheet_map).get(frameInfo.spritesheetId);
+        if(spshB64 !== undefined)
+        {
+            imgdata = 'data:image/png;base64,' + spshB64[0];
+        }
+        else
+        {
+            imgdata = 'data:image/png;base64,';
+        }
     }
     const imgelem = new Image();
     imgelem.src = imgdata;
@@ -113,6 +123,13 @@ export async function getImageDimensions(imgfileref: File): Promise<number[]>
     imgelem.src = imgdata;
     await imgelem.decode();
     return [ imgelem.naturalWidth, imgelem.naturalHeight ];
+}
+
+// Don't use this function for cryptography! This is only to generate image hashes for the hashmaps
+export async function hashImage(imgdata: Uint8Array): Promise<string>
+{
+    const digest = await crypto.subtle.digest('SHA-1', imgdata)
+    return base64EncArr(new Uint8Array(digest));
 }
 
 export class UIdGen{
