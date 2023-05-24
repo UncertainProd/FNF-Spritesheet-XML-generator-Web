@@ -294,7 +294,8 @@
             }
         }
         const finalImage = growingpacker.make_packed_image();
-        saveFile(finalImage, 'testing.png');
+        saveFile(finalImage, 'testing.zip');
+        // console.log("No of bytes written: " + finalImage);
     }
 </script>
 

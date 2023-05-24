@@ -1,7 +1,6 @@
 use std::{collections::hash_map::DefaultHasher, hash::{Hash, Hasher}};
 
 use image::{ImageEncoder, GenericImageView};
-use wasm_bindgen::JsValue;
 
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the

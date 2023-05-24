@@ -1,8 +1,8 @@
-use std::{collections::{HashMap, HashSet}, sync::atomic::AtomicU32};
+use std::{collections::{HashMap, HashSet}, sync::atomic::AtomicU32, io::{self, Write}};
 
 use wasm_bindgen::prelude::*;
 
-use crate::{utils::{PackError, encode_image_as_png, self}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format};
+use crate::{utils::{PackError, encode_image_as_png, self}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}, alert};
 use image::{imageops, DynamicImage};
 use super::helpers;
 
@@ -177,11 +177,48 @@ impl GrowingPacker
     {
         let (final_width, final_height, fits) = self.pack().expect("Packing error happened!!");
         let mut base = image::DynamicImage::new_rgba8(final_width, final_height);
+
+        let mut v = Vec::new();
+        let mut texture_atlas = textureatlas_format::TextureAtlas::default();
+        texture_atlas.image_path = "testing.png".to_string();
+        
         for fit in fits
         {
             imageops::overlay(&mut base, &self.frame_image_cache.cache[&fit.id], fit.x as i64, fit.y as i64);
+            texture_atlas.subtextures.push(
+                SubTexture::new(
+                    self.frames[0].animation_prefix.clone(), 
+                    fit.x, 
+                    fit.y, 
+                    fit.width, 
+                    fit.height, 
+                    Some(self.frames[0].frame_rect.frame_x as i32), 
+                    Some(self.frames[0].frame_rect.frame_y as i32), 
+                    Some(self.frames[0].frame_rect.frame_width as u32), 
+                    Some(self.frames[0].frame_rect.frame_height as u32)
+                )
+            );
         }
-        encode_image_as_png(base)
+        texture_atlas.write_to(&mut v);
+        
+        let pngbytes = encode_image_as_png(base);
+        
+        let mut zip_buf: Vec<u8> = Vec::with_capacity(pngbytes.len());
+        let zipcursor = io::Cursor::new(&mut zip_buf);
+        
+        let mut zip_writer = zip::ZipWriter::new(zipcursor);
+        let zip_opts = zip::write::FileOptions::default();
+        
+        zip_writer.start_file("testfile.png", zip_opts).expect("Could not write to zip!");
+        zip_writer.write_all(&pngbytes).expect("Zip error!");
+
+        zip_writer.start_file("testfile.xml", zip_opts).expect("Could not write to zip!");
+        zip_writer.write_all(&v).expect("Zip error!");
+
+        zip_writer.finish().expect("Error finising zip!");
+        drop(zip_writer);
+
+        return zip_buf;
     }
 }
 
@@ -202,8 +239,8 @@ impl Packer for GrowingPacker
         
         Ok(
             (
-                result.width() as u32, 
-                result.height() as u32, 
+                result.width(), 
+                result.height(), 
                 result.items
                 .into_iter()
                 .map(
