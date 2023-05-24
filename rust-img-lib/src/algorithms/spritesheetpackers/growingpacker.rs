@@ -81,7 +81,7 @@ impl ImageCache {
 pub struct GrowingPacker
 {
     frame_image_cache: ImageCache,
-    frames: Vec<FrameInfo>,
+    frames: HashMap<u64, Vec<FrameInfo>>,
     _spritesheet_store: HashMap<String, image::DynamicImage>
 }
 
@@ -92,7 +92,7 @@ impl GrowingPacker
     {
         Self {
             frame_image_cache: ImageCache::new(),
-            frames: vec![],
+            frames: HashMap::new(),
             _spritesheet_store: HashMap::new()
         }
     }
@@ -130,7 +130,16 @@ impl GrowingPacker
             transform: TransformInfo { scale_x, scale_y, flip_x, flip_y },
             frame_rect: FrameRectInfo { frame_x: frame_x - (left as i64), frame_y: frame_y - (top as i64), frame_width, frame_height }
         };
-        self.frames.push(cur_frameinfo);
+        
+        let imgframes = self.frames.get_mut(&imghash);
+        match imgframes {
+            Some(frames) => {
+                frames.push(cur_frameinfo);
+            }
+            None => {
+                self.frames.insert(imghash, vec![ cur_frameinfo ]);
+            }
+        }
     }
 
     pub fn add_spritesheet_frame(
@@ -169,7 +178,16 @@ impl GrowingPacker
             transform: TransformInfo { scale_x, scale_y, flip_x, flip_y },
             frame_rect: FrameRectInfo { frame_x: frame_x - (left as i64), frame_y: frame_y - (top as i64), frame_width, frame_height }
         };
-        self.frames.push(cur_frameinfo);
+
+        let imgframes = self.frames.get_mut(&imghash);
+        match imgframes {
+            Some(frames) => {
+                frames.push(cur_frameinfo);
+            }
+            None => {
+                self.frames.insert(imghash, vec![ cur_frameinfo ]);
+            }
+        }
     }
 
     /// Returns the final image as a PNG
@@ -182,22 +200,29 @@ impl GrowingPacker
         let mut texture_atlas = textureatlas_format::TextureAtlas::default();
         texture_atlas.image_path = "testing.png".to_string();
         
+        // group frames by id
         for fit in fits
         {
             imageops::overlay(&mut base, &self.frame_image_cache.cache[&fit.id], fit.x as i64, fit.y as i64);
-            texture_atlas.subtextures.push(
-                SubTexture::new(
-                    self.frames[0].animation_prefix.clone(), 
-                    fit.x, 
-                    fit.y, 
-                    fit.width, 
-                    fit.height, 
-                    Some(self.frames[0].frame_rect.frame_x as i32), 
-                    Some(self.frames[0].frame_rect.frame_y as i32), 
-                    Some(self.frames[0].frame_rect.frame_width as u32), 
-                    Some(self.frames[0].frame_rect.frame_height as u32)
-                )
-            );
+            let frame_group = self.frames.get(&fit.id);
+            if let Some(frames) = frame_group {
+                for f in frames
+                {
+                    texture_atlas.subtextures.push(
+                        SubTexture::new(
+                            f.animation_prefix.clone(), 
+                            fit.x, 
+                            fit.y, 
+                            fit.width, 
+                            fit.height, 
+                            Some(f.frame_rect.frame_x as i32), 
+                            Some(f.frame_rect.frame_y as i32), 
+                            Some(f.frame_rect.frame_width as u32), 
+                            Some(f.frame_rect.frame_height as u32)
+                        )
+                    );
+                }
+            }
         }
         texture_atlas.write_to(&mut v);
         
