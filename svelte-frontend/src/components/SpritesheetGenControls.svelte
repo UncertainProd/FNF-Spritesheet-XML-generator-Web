@@ -53,8 +53,6 @@
             if(!prev.has(imgHash))
             {
                 prev.set(imgHash, [spshData, 0]);
-                // const [_, count] = prev.get(imgHash);
-                // prev.set(imgHash, [spshData, count+1]);
             }
             return prev;
         });

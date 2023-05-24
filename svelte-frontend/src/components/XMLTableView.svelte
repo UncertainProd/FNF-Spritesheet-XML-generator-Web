@@ -82,7 +82,10 @@
         curSprFrame = $spriteframes[index];
         for(const r of rows)
         {
-            r.style.backgroundColor = 'white';
+            if(r)
+            {
+                r.style.backgroundColor = 'white';
+            }
         }
         rows[index].style.backgroundColor = 'blue';
         // console.log(`selected: ${currSelectedRow} | frame = ${curSprFrame.sprId}`);
