@@ -1,22 +1,14 @@
-use std::{collections::{HashMap, HashSet}, sync::atomic::AtomicU32, io::{self, Write}};
+use std::{collections::HashMap, sync::atomic::AtomicU32, io::{self, Write}};
 
 use wasm_bindgen::prelude::*;
 
-use crate::{utils::{PackError, encode_image_as_png, self, transform_image}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}, alert};
+use crate::{utils::{PackError, encode_image_as_png, self, transform_image}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}};
 use image::{imageops, DynamicImage};
 use super::helpers;
 
 // use super::{PackingRectangle, Packer, FitRect, growingpack_fns};
 
 // static ID_GEN: AtomicU32 = AtomicU32::new(0);
-
-struct ImgRectInfo
-{
-    x: u32,
-    y: u32,
-    width: u32,
-    height: u32
-}
 
 pub struct TransformInfo
 {
@@ -40,8 +32,6 @@ struct FrameInfo
     // img_data: Vec<u8>,
     img_cache_id: u64,
     animation_prefix: String,
-    rect: Option<ImgRectInfo>,
-    transform: TransformInfo,
     frame_rect: FrameRectInfo
 }
 
@@ -127,8 +117,6 @@ impl GrowingPacker
             spr_id,
             img_cache_id: imghash,
             animation_prefix,
-            rect: None,
-            transform: TransformInfo { scale_x, scale_y, flip_x, flip_y },
             frame_rect: FrameRectInfo { frame_x: frame_x - (left as i64), frame_y: frame_y - (top as i64), frame_width, frame_height }
         };
         
@@ -177,8 +165,6 @@ impl GrowingPacker
             spr_id,
             img_cache_id: imghash,
             animation_prefix,
-            rect: Some(ImgRectInfo { x: rect_x, y: rect_y, width: rect_width, height: rect_height }),
-            transform: TransformInfo { scale_x, scale_y, flip_x, flip_y },
             frame_rect: FrameRectInfo { frame_x: frame_x - (left as i64), frame_y: frame_y - (top as i64), frame_width, frame_height }
         };
 
