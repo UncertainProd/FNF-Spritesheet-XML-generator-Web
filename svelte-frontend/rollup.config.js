@@ -59,7 +59,8 @@ export default {
 		// the path otherwise you get a 404 error (.wasm file not found).
 		rust({
 			verbose: true,
-			serverPath: "/build/"
+			serverPath: "/build/",
+			debug: !production
 		}),
 
 		// If you have external dependencies installed from
