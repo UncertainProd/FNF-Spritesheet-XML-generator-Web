@@ -1,6 +1,8 @@
 use std::{collections::hash_map::DefaultHasher, hash::{Hash, Hasher}};
 
-use image::{ImageEncoder, GenericImageView};
+use image::{ImageEncoder, GenericImageView, imageops};
+
+use crate::algorithms::spritesheetpackers::growingpacker::TransformInfo;
 
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -67,6 +69,31 @@ pub fn get_bounding_box(img: &image::DynamicImage, alpha_threshold: Option<u8>) 
     }
 
     Some((bb_left, bb_top as u32, bb_right, bb_bottom))
+}
+
+pub fn transform_image(img: image::DynamicImage, img_transform: TransformInfo) -> image::DynamicImage
+{
+    // first we scale then we flip
+    let mut new_img = img;
+    if img_transform.scale_x != 1.0 || img_transform.scale_y != 1.0
+    {
+        new_img = new_img.resize(
+            (new_img.width() as f64 * img_transform.scale_x).round() as u32, 
+            (new_img.height() as f64 * img_transform.scale_y).round() as u32, 
+            imageops::FilterType::Nearest
+        );
+    }
+
+    if img_transform.flip_x
+    {
+        new_img = new_img.fliph();
+    }
+    if img_transform.flip_y
+    {
+        new_img = new_img.flipv();
+    }
+
+    return new_img;
 }
 
 #[derive(Debug)]
