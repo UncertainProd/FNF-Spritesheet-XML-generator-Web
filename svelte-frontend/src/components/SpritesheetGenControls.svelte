@@ -255,7 +255,7 @@
                     console.log("Reading single frame" + sprdat.sprId);
                     const abuf = await sprdat.imgfileref.arrayBuffer();
                     growingpacker.add_single_frame(
-                        sprdat.sprId,
+                        // sprdat.sprId,
                         new Uint8Array(abuf),
                         sprdat.animationPrefix,
                         sprdat.transform.scaleX,
@@ -271,9 +271,8 @@
                 case 'spritesheet_frame':
                     console.log("Putting spritesheet frame" + sprdat.sprId);
                     growingpacker.add_spritesheet_frame(
-                        sprdat.sprId,
+                        // sprdat.sprId,
                         sprdat.spritesheetId,
-                        '',
                         sprdat.animationPrefix,
                         sprdat.rect.x,
                         sprdat.rect.y,
