@@ -39,7 +39,6 @@ struct FrameInfo
     spr_id: String,
     // img_data: Vec<u8>,
     img_cache_id: u64,
-    xml_data: Option<String>,
     animation_prefix: String,
     rect: Option<ImgRectInfo>,
     transform: TransformInfo,
@@ -127,7 +126,6 @@ impl GrowingPacker
         let cur_frameinfo = FrameInfo {
             spr_id,
             img_cache_id: imghash,
-            xml_data: None,
             animation_prefix,
             rect: None,
             transform: TransformInfo { scale_x, scale_y, flip_x, flip_y },
@@ -149,7 +147,6 @@ impl GrowingPacker
         &mut self,
         spr_id: String,
         spritesheet_id: String,
-        xml_data: String,
         animation_prefix: String,
         rect_x: u32,
         rect_y: u32,
@@ -179,7 +176,6 @@ impl GrowingPacker
         let cur_frameinfo = FrameInfo {
             spr_id,
             img_cache_id: imghash,
-            xml_data: Some(xml_data),
             animation_prefix,
             rect: Some(ImgRectInfo { x: rect_x, y: rect_y, width: rect_width, height: rect_height }),
             transform: TransformInfo { scale_x, scale_y, flip_x, flip_y },
