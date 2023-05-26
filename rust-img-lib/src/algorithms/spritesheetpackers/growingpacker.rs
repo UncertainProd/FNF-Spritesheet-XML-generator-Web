@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, sync::atomic::AtomicU32, io::{self, W
 
 use wasm_bindgen::prelude::*;
 
-use crate::{utils::{PackError, encode_image_as_png, self}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}, alert};
+use crate::{utils::{PackError, encode_image_as_png, self, transform_image}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}, alert};
 use image::{imageops, DynamicImage};
 use super::helpers;
 
@@ -18,12 +18,12 @@ struct ImgRectInfo
     height: u32
 }
 
-struct TransformInfo
+pub struct TransformInfo
 {
-    scale_x: f64,
-    scale_y: f64,
-    flip_x: bool,
-    flip_y: bool
+    pub scale_x: f64,
+    pub scale_y: f64,
+    pub flip_x: bool,
+    pub flip_y: bool
 }
 
 struct FrameRectInfo
@@ -117,8 +117,11 @@ impl GrowingPacker
         frame_height: u64,
     )
     {
+        // Note: flixel doesn't seem to use flipX or flipY from XMLs when making sparrow atlas frames as of now, 
+        // so we just make a transformed frame as a workaround
+        let true_img = transform_image(image::load_from_memory(&img_data).expect("Should be valid image"), TransformInfo { scale_x, scale_y, flip_x, flip_y });
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
-            image::load_from_memory(&img_data).expect("Should be valid image")
+            true_img
         );
 
         let cur_frameinfo = FrameInfo {
@@ -162,11 +165,15 @@ impl GrowingPacker
         frame_height: u64,
     )
     {
+        let pre_img = self._spritesheet_store
+            .get(&spritesheet_id)
+            .expect("Key not in map!")
+            .crop_imm(rect_x, rect_y, rect_width, rect_height);
+
+        
+        let true_img = transform_image(pre_img, TransformInfo { scale_x, scale_y, flip_x, flip_y });
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
-            self._spritesheet_store
-                .get(&spritesheet_id)
-                .expect("Key not in map!")
-                .crop_imm(rect_x, rect_y, rect_width, rect_height)
+            true_img
         );
 
         let cur_frameinfo = FrameInfo {
@@ -196,7 +203,7 @@ impl GrowingPacker
         let (final_width, final_height, fits) = self.pack().expect("Packing error happened!!");
         let mut base = image::DynamicImage::new_rgba8(final_width, final_height);
 
-        let mut v = Vec::new();
+        let mut xml_bytes = Vec::new();
         let mut texture_atlas = textureatlas_format::TextureAtlas::default();
         texture_atlas.image_path = "testing.png".to_string();
         
@@ -224,7 +231,7 @@ impl GrowingPacker
                 }
             }
         }
-        texture_atlas.write_to(&mut v);
+        texture_atlas.write_to(&mut xml_bytes);
         
         let pngbytes = encode_image_as_png(base);
         
@@ -238,7 +245,7 @@ impl GrowingPacker
         zip_writer.write_all(&pngbytes).expect("Zip error!");
 
         zip_writer.start_file("testfile.xml", zip_opts).expect("Could not write to zip!");
-        zip_writer.write_all(&v).expect("Zip error!");
+        zip_writer.write_all(&xml_bytes).expect("Zip error!");
 
         zip_writer.finish().expect("Error finising zip!");
         drop(zip_writer);
