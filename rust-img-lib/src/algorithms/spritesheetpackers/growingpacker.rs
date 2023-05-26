@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::atomic::AtomicU32, io::{self, Write}};
+use std::{collections::HashMap, io::{self, Write}};
 
 use wasm_bindgen::prelude::*;
 
@@ -7,8 +7,6 @@ use image::{imageops, DynamicImage};
 use super::helpers;
 
 // use super::{PackingRectangle, Packer, FitRect, growingpack_fns};
-
-// static ID_GEN: AtomicU32 = AtomicU32::new(0);
 
 pub struct TransformInfo
 {
@@ -28,9 +26,9 @@ struct FrameRectInfo
 
 struct FrameInfo
 {
-    spr_id: String,
+    // spr_id: String,
     // img_data: Vec<u8>,
-    img_cache_id: u64,
+    // img_cache_id: u64,
     animation_prefix: String,
     frame_rect: FrameRectInfo
 }
@@ -93,7 +91,7 @@ impl GrowingPacker
 
     pub fn add_single_frame(
         &mut self,
-        spr_id: String,
+        // spr_id: String,
         img_data: Vec<u8>,
         animation_prefix: String,
         scale_x: f64,
@@ -114,8 +112,8 @@ impl GrowingPacker
         );
 
         let cur_frameinfo = FrameInfo {
-            spr_id,
-            img_cache_id: imghash,
+            // spr_id,
+            // img_cache_id: imghash,
             animation_prefix,
             frame_rect: FrameRectInfo { frame_x: frame_x - (left as i64), frame_y: frame_y - (top as i64), frame_width, frame_height }
         };
@@ -133,7 +131,7 @@ impl GrowingPacker
 
     pub fn add_spritesheet_frame(
         &mut self,
-        spr_id: String,
+        // spr_id: String,
         spritesheet_id: String,
         animation_prefix: String,
         rect_x: u32,
@@ -162,8 +160,8 @@ impl GrowingPacker
         );
 
         let cur_frameinfo = FrameInfo {
-            spr_id,
-            img_cache_id: imghash,
+            // spr_id,
+            // img_cache_id: imghash,
             animation_prefix,
             frame_rect: FrameRectInfo { frame_x: frame_x - (left as i64), frame_y: frame_y - (top as i64), frame_width, frame_height }
         };
