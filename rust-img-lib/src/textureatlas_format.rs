@@ -2,6 +2,7 @@ use std::{str::FromStr, fmt::Debug, path::Path, io::Write, collections::HashMap}
 
 use quick_xml::{Reader, events::{Event, attributes::Attribute, BytesStart, BytesDecl, BytesText, BytesEnd}, Writer};
 
+#[allow(dead_code)]
 fn parse_value<T: FromStr>(att: &Attribute) -> T where <T as FromStr>::Err: Debug
 {
     String::from_utf8(att.value.as_ref().to_vec()).unwrap().parse().unwrap()
@@ -94,6 +95,7 @@ impl TextureAtlas
         Self { image_path: img_path, subtextures }
     }
 
+    #[cfg(not(target_arch="wasm32"))]
     pub fn from_xml_string(xmlstr: &str) -> Self
     {
         let mut reader = Reader::from_str(xmlstr);
