@@ -77,7 +77,7 @@ pub fn transform_image(img: image::DynamicImage, img_transform: TransformInfo) -
     let mut new_img = img;
     if img_transform.scale_x != 1.0 || img_transform.scale_y != 1.0
     {
-        new_img = new_img.resize(
+        new_img = new_img.resize_exact(
             (new_img.width() as f64 * img_transform.scale_x).round() as u32, 
             (new_img.height() as f64 * img_transform.scale_y).round() as u32, 
             imageops::FilterType::Nearest
