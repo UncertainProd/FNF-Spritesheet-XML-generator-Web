@@ -15,38 +15,12 @@
     let _frameYInput:HTMLInputElement = null;
     let _frameWidthInput:HTMLInputElement = null;
     let _frameHeightInput:HTMLInputElement = null;
-    let _scaleXInput:HTMLInputElement = null;
-    let _scaleYInput:HTMLInputElement = null;
+    let _newWidthInput:HTMLInputElement = null; // newWidth
+    let _newHeightInput:HTMLInputElement = null; // newHeight
+    // let _scaleXInput:HTMLInputElement = null; // newWidth
+    // let _scaleYInput:HTMLInputElement = null; // newHeight
     let _flipXInput:HTMLInputElement = null;
     let _flipYInput:HTMLInputElement = null;
-
-    $: {
-        // if(spriteframes[currSelectedRow])
-        // {
-        //     curSprFrame = spriteframes[currSelectedRow];
-        //     console.log("ReDrawing")
-        //     drawFrameWithBox(curSprFrame).then(()=>{});
-        //     // spriteframes = spriteframes;
-        // }
-        // else
-        // {
-            // a dummy frame
-            // curSprFrame = {
-            //     frameRect: {
-            //         frameX: null,
-            //         frameY: null,
-            //         frameWidth: null,
-            //         frameHeight: null,
-            //     },
-            //     transform: {
-            //         scaleX: null,
-            //         scaleY: null,
-            //         flipX: false,
-            //         flipY: false
-            //     }
-            // };
-        // }
-    }
 
     let rows:HTMLTableRowElement[] = [];
     let canvasElement:HTMLCanvasElement = null;
@@ -93,8 +67,10 @@
         _frameYInput.value = '' + curSprFrame.frameRect.frameY;
         _frameWidthInput.value = '' + curSprFrame.frameRect.frameWidth;
         _frameHeightInput.value = '' + curSprFrame.frameRect.frameHeight;
-        _scaleXInput.value = '' + curSprFrame.transform.scaleX;
-        _scaleYInput.value = '' + curSprFrame.transform.scaleY;
+        _newWidthInput.value = '' + curSprFrame.transform.newWidth; // newWidth
+        _newHeightInput.value = '' + curSprFrame.transform.newHeight; // newHeight
+        // _newWidthInput.value = '' + curSprFrame.transform.scaleX; // newWidth
+        // _newHeightInput.value = '' + curSprFrame.transform.scaleY; // newHeight
         _flipXInput.checked = curSprFrame.transform.flipX;
         _flipYInput.checked = curSprFrame.transform.flipY;
     }
@@ -106,8 +82,10 @@
         curSprFrame.frameRect.frameY = +_frameYInput.value;
         curSprFrame.frameRect.frameWidth = +_frameWidthInput.value;
         curSprFrame.frameRect.frameHeight = +_frameHeightInput.value;
-        curSprFrame.transform.scaleX = +_scaleXInput.value;
-        curSprFrame.transform.scaleY = +_scaleYInput.value;
+        curSprFrame.transform.newWidth = +_newWidthInput.value; // newWidth
+        curSprFrame.transform.newHeight = +_newHeightInput.value; // newHeight
+        // curSprFrame.transform.scaleX = +_newWidthInput.value; // newWidth
+        // curSprFrame.transform.scaleY = +_newHeightInput.value; // newHeight
         curSprFrame.transform.flipX = _flipXInput.checked;
         curSprFrame.transform.flipY = _flipYInput.checked;
         curSprFrame._changed = true;
@@ -134,8 +112,10 @@
                     <th>Frame Y</th>
                     <th>Frame Width</th>
                     <th>Frame Height</th>
-                    <th>Scale X</th>
-                    <th>Scale Y</th>
+                    <th>New Image Width</th> <!--New width-->
+                    <th>New Image Height</th> <!--New height-->
+                    <!-- <th>Scale X</th> --> <!--New width-->
+                    <!-- <th>Scale Y</th> --> <!--New height-->
                     <th>flip X</th>
                     <th>flip Y</th>
                 </thead>
@@ -153,8 +133,10 @@
                             <td>{spr.frameRect.frameY}</td>
                             <td>{spr.frameRect.frameWidth}</td>
                             <td>{spr.frameRect.frameHeight}</td>
-                            <td>{spr.transform.scaleX}</td>
-                            <td>{spr.transform.scaleY}</td>
+                            <td>{spr.transform.newWidth}</td> <!--New width-->
+                            <td>{spr.transform.newHeight}</td> <!--New Height-->
+                            <!-- <td>{spr.transform.scaleX}</td> --> <!--New width-->
+                            <!-- <td>{spr.transform.scaleY}</td> --> <!--New Height-->
                             <td>{spr.transform.flipX}</td>
                             <td>{spr.transform.flipY}</td>
                         </tr>
@@ -166,42 +148,46 @@
             <div class="controls-horizontal">
                 <label class="xmlview-input" for="frame-x">
                     Frame X
-                    <!-- <input type="number" name="frame-x" id="frame-x" on:input={onValueChange} bind:this={_frameXInput} bind:value={curSprFrame.frameRect.frameX}> -->
                     <input type="number" name="frame-x" id="frame-x" on:input={onValueChange} bind:this={_frameXInput}>
                 </label>
                 <label class="xmlview-input" for="frame-y">
                     Frame Y
-                    <!-- <input type="number" name="frame-y" id="frame-y" on:input={onValueChange} bind:this={_frameYInput} bind:value={curSprFrame.frameRect.frameY}> -->
                     <input type="number" name="frame-y" id="frame-y" on:input={onValueChange} bind:this={_frameYInput}>
                 </label>
                 <label class="xmlview-input" for="frame-width">
                     Frame Width
-                    <!-- <input type="number" name="frame-width" id="frame-width" on:input={onValueChange} bind:this={_frameWidthInput} bind:value={curSprFrame.frameRect.frameWidth}> -->
                     <input type="number" name="frame-width" id="frame-width" on:input={onValueChange} bind:this={_frameWidthInput}>
                 </label>
                 <label class="xmlview-input" for="frame-height">
                     Frame Height
-                    <!-- <input type="number" name="frame-height" id="frame-height" on:input={onValueChange} bind:this={_frameHeightInput} bind:value={curSprFrame.frameRect.frameHeight}> -->
                     <input type="number" name="frame-height" id="frame-height" on:input={onValueChange} bind:this={_frameHeightInput}>
                 </label>
+                <!--New width-->
                 <label class="xmlview-input" for="scale-x">
-                    Scale X
-                    <!-- <input type="number" name="scale-x" id="scale-x" min="0.01" step="0.01" on:input={onValueChange} bind:this={_scaleXInput} bind:value={curSprFrame.transform.scaleX}> -->
-                    <input type="number" name="scale-x" id="scale-x" min="0.01" step="0.01" on:input={onValueChange} bind:this={_scaleXInput}>
+                    Image Width
+                    <input type="number" name="scale-x" id="scale-x" min="1" on:input={onValueChange} bind:this={_newWidthInput}>
                 </label>
+                <!--New height-->
                 <label class="xmlview-input" for="scale-y">
-                    Scale Y
-                    <!-- <input type="number" name="scale-y" id="scale-y" min="0.01" step="0.01" on:input={onValueChange} bind:this={_scaleYInput} bind:value={curSprFrame.transform.scaleY}> -->
-                    <input type="number" name="scale-y" id="scale-y" min="0.01" step="0.01" on:input={onValueChange} bind:this={_scaleYInput}>
+                    Image Height
+                    <input type="number" name="scale-y" id="scale-y" min="1" on:input={onValueChange} bind:this={_newHeightInput}>
                 </label>
+                <!--New width-->
+                <!-- <label class="xmlview-input" for="scale-x">
+                    Scale X
+                    <input type="number" name="scale-x" id="scale-x" min="0.01" step="0.01" on:input={onValueChange} bind:this={_newWidthInput}>
+                </label> -->
+                <!--New height-->
+                <!-- <label class="xmlview-input" for="scale-y">
+                    Scale Y
+                    <input type="number" name="scale-y" id="scale-y" min="0.01" step="0.01" on:input={onValueChange} bind:this={_newHeightInput}>
+                </label> -->
                 <label class="xmlview-input" for="flip-x">
                     Flip X
-                    <!-- <input type="checkbox" name="flip-x" id="flip-x" on:input={onValueChange} bind:this={_flipXInput} bind:checked={curSprFrame.transform.flipX}> -->
                     <input type="checkbox" name="flip-x" id="flip-x" on:input={onValueChange} bind:this={_flipXInput}>
                 </label>
                 <label class="xmlview-input" for="flip-y">
                     Flip Y
-                    <!-- <input type="checkbox" name="flip-y" id="flip-y" on:input={onValueChange} bind:this={_flipYInput} bind:checked={curSprFrame.transform.flipY}> -->
                     <input type="checkbox" name="flip-y" id="flip-y" on:input={onValueChange} bind:this={_flipYInput}>
                 </label>
 

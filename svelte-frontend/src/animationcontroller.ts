@@ -74,8 +74,8 @@ export class AnimationController {
         const flipFactorX = (transform.flipX) ? -1 : 1;
         const flipFactorY = (transform.flipY) ? -1 : 1;
 
-        const totalScaleToDrawX = flipFactorX * transform.scaleX * this.animationScale;
-        const totalScaleToDrawY = flipFactorY * transform.scaleY * this.animationScale;
+        const totalScaleToDrawX = flipFactorX * this.animationScale;
+        const totalScaleToDrawY = flipFactorY * this.animationScale;
 
         this.context.save();
         
@@ -95,16 +95,9 @@ export class AnimationController {
             r.x, r.y, r.width, r.height, 
             -frame.frameX,
             -frame.frameY,
-            r.width,
-            r.height
+            transform.newWidth,
+            transform.newHeight
         );
-
-        if(withBoundingBox)
-        {
-            this.context.beginPath();
-            this.context.rect(0, 0, frame.frameWidth, frame.frameHeight);
-            this.context.stroke();
-        }
 
         this.context.restore();
 
@@ -112,18 +105,26 @@ export class AnimationController {
         {
             // scuffed clipping logic
             this.context.clearRect(
-                frame.frameWidth * this.animationScale * transform.scaleX, 
+                frame.frameWidth * this.animationScale, 
                 0, 
                 this.context.canvas.width, 
                 this.context.canvas.height
             );
             this.context.clearRect(
                 0, 
-                frame.frameHeight * this.animationScale * transform.scaleY, 
+                frame.frameHeight * this.animationScale, 
                 this.context.canvas.width, 
                 this.context.canvas.height
             );
         }
+
+        if(withBoundingBox)
+        {
+            this.context.beginPath();
+            this.context.rect(0, 0, frame.frameWidth * this.animationScale, frame.frameHeight * this.animationScale);
+            this.context.stroke();
+        }
+
     }
 
     async initFrames(frames: SpriteFrameData[])

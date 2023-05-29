@@ -10,8 +10,8 @@ use super::helpers;
 
 pub struct TransformInfo
 {
-    pub scale_x: f64,
-    pub scale_y: f64,
+    pub new_width: u32,
+    pub new_height: u32,
     pub flip_x: bool,
     pub flip_y: bool
 }
@@ -94,8 +94,8 @@ impl GrowingPacker
         // spr_id: String,
         img_data: Vec<u8>,
         animation_prefix: String,
-        scale_x: f64,
-        scale_y: f64,
+        new_width: u32,
+        new_height: u32,
         flip_x: bool,
         flip_y: bool,
         frame_x: i64,
@@ -104,7 +104,7 @@ impl GrowingPacker
         frame_height: u64,
     )
     {
-        let true_img = transform_image(image::load_from_memory(&img_data).expect("Should be valid image"), TransformInfo { scale_x, scale_y, flip_x, flip_y });
+        let true_img = transform_image(image::load_from_memory(&img_data).expect("Should be valid image"), TransformInfo { new_width, new_height, flip_x, flip_y });
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
             true_img
         );
@@ -136,8 +136,8 @@ impl GrowingPacker
         rect_y: u32,
         rect_width: u32,
         rect_height: u32,
-        scale_x: f64,
-        scale_y: f64,
+        new_width: u32,
+        new_height: u32,
         flip_x: bool,
         flip_y: bool,
         frame_x: i64,
@@ -152,7 +152,7 @@ impl GrowingPacker
             .crop_imm(rect_x, rect_y, rect_width, rect_height);
 
         
-        let true_img = transform_image(pre_img, TransformInfo { scale_x, scale_y, flip_x, flip_y });
+        let true_img = transform_image(pre_img, TransformInfo { new_width, new_height, flip_x, flip_y });
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
             true_img
         );

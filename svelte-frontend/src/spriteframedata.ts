@@ -16,8 +16,10 @@ export class SpriteFrameData
         height: number
     };
     transform: {
-        scaleX: number,
-        scaleY: number,
+        // scaleX: number, // newWidth
+        // scaleY: number, // newHeight
+        newWidth: number,
+        newHeight: number,
         flipX: boolean,
         flipY: boolean
     };
@@ -45,8 +47,10 @@ export class SpriteFrameData
             height: null
         };
         this.transform = {
-            scaleX: 1.0,
-            scaleY: 1.0,
+            // scaleX: 1.0,
+            // scaleY: 1.0,
+            newWidth: null,
+            newHeight: null,
             flipX: false,
             flipY: false
         };

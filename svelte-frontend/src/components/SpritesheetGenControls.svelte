@@ -22,6 +22,8 @@
             const newFrame = new SpriteFrameData(f.name + '::' + uidgen.getNewId(), 'single_frame', f, null, null);
             newFrame.rect.width = imgWidth;
             newFrame.rect.height = imgHeight;
+            newFrame.transform.newWidth = imgWidth;
+            newFrame.transform.newHeight = imgHeight;
             newFrame.frameRect.frameWidth = imgWidth;
             newFrame.frameRect.frameHeight = imgHeight;
             newFrame.animationPrefix = f.name.substring(0, f.name.indexOf('.png'));
@@ -81,6 +83,8 @@
                 frameWidth: parseInt(tex.getAttribute('frameWidth')) || newFrame.rect.width,
                 frameHeight: parseInt(tex.getAttribute('frameHeight')) || newFrame.rect.height
             };
+            newFrame.transform.newWidth = newFrame.rect.width;
+            newFrame.transform.newHeight = newFrame.rect.height;
 
             addedTextures.push(newFrame);
         }
@@ -258,8 +262,10 @@
                         // sprdat.sprId,
                         new Uint8Array(abuf),
                         sprdat.animationPrefix,
-                        sprdat.transform.scaleX,
-                        sprdat.transform.scaleY,
+                        sprdat.transform.newWidth, // newWidth
+                        sprdat.transform.newHeight, // newHeight
+                        // sprdat.transform.scaleX, // newWidth
+                        // sprdat.transform.scaleY, // newHeight
                         sprdat.transform.flipX,
                         sprdat.transform.flipY,
                         BigInt(sprdat.frameRect.frameX),
@@ -278,8 +284,10 @@
                         sprdat.rect.y,
                         sprdat.rect.width,
                         sprdat.rect.height,
-                        sprdat.transform.scaleX,
-                        sprdat.transform.scaleY,
+                        sprdat.transform.newWidth, // newWidth
+                        sprdat.transform.newHeight, // newHeight
+                        // sprdat.transform.scaleX, // newWidth
+                        // sprdat.transform.scaleY, // newHeight
                         sprdat.transform.flipX,
                         sprdat.transform.flipY,
                         BigInt(sprdat.frameRect.frameX),
