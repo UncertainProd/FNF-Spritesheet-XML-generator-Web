@@ -203,7 +203,9 @@ impl GrowingPacker
                             Some(f.frame_rect.frame_x as i32), 
                             Some(f.frame_rect.frame_y as i32), 
                             Some(f.frame_rect.frame_width as u32), 
-                            Some(f.frame_rect.frame_height as u32)
+                            Some(f.frame_rect.frame_height as u32),
+                            None, // TODO: Test if adding flipX and flipY to xml works in flixel
+                            None
                         )
                     );
                 }

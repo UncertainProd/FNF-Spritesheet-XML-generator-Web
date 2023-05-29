@@ -201,6 +201,13 @@ impl TextureAtlas
                 bys.push_attribute(("frameHeight", fh.to_string().as_str()));
             }
 
+            if let Some(flipx) = thing.flip_x {
+                bys.push_attribute(("flipX", flipx.to_string().as_str()));
+            }
+            if let Some(flipy) = thing.flip_y {
+                bys.push_attribute(("flipY", flipy.to_string().as_str()));
+            }
+
             wr.write_event(Event::Empty(bys)).unwrap();
         }
 
@@ -219,19 +226,21 @@ pub struct SubTexture
     pub frame_x: Option<i32>,
     pub frame_y: Option<i32>,
     pub frame_width: Option<u32>,
-    pub frame_height: Option<u32>
+    pub frame_height: Option<u32>,
+    pub flip_x: Option<bool>,
+    pub flip_y: Option<bool>
 }
 
 impl SubTexture
 {
-    pub fn new(name: String, x: u32, y: u32, width: u32, height: u32, frame_x: Option<i32>, frame_y: Option<i32>, frame_width: Option<u32>, frame_height: Option<u32>) -> Self
+    pub fn new(name: String, x: u32, y: u32, width: u32, height: u32, frame_x: Option<i32>, frame_y: Option<i32>, frame_width: Option<u32>, frame_height: Option<u32>, flip_x: Option<bool>, flip_y: Option<bool>) -> Self
     {
-        Self { name, x, y, width, height, frame_x, frame_y, frame_width, frame_height }
+        Self { name, x, y, width, height, frame_x, frame_y, frame_width, frame_height, flip_x, flip_y }
     }
 }
 
 impl Default for SubTexture {
     fn default() -> Self {
-        Self { name: "".to_string(), x: 0, y: 0, width: 0, height: 0, frame_x: None, frame_y: None, frame_width: None, frame_height: None }
+        Self { name: "".to_string(), x: 0, y: 0, width: 0, height: 0, frame_x: None, frame_y: None, frame_width: None, frame_height: None, flip_x: None, flip_y: None }
     }
 }
