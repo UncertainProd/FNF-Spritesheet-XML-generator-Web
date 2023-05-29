@@ -104,8 +104,6 @@ impl GrowingPacker
         frame_height: u64,
     )
     {
-        // Note: flixel doesn't seem to use flipX or flipY from XMLs when making sparrow atlas frames as of now, 
-        // so we just make a transformed frame as a workaround
         let true_img = transform_image(image::load_from_memory(&img_data).expect("Should be valid image"), TransformInfo { scale_x, scale_y, flip_x, flip_y });
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
             true_img
