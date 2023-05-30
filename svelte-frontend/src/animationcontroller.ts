@@ -65,7 +65,7 @@ export class AnimationController {
         this.prev = this.start;
     }
 
-    drawImage(frameImg: HTMLImageElement, rectInfo: SpriteFrameData, withBoundingBox = false, withClipping = true)
+    drawImage(frameImg: HTMLImageElement, rectInfo: SpriteFrameData, withBoundingBox = false, withClipping = false)
     {
         const r = rectInfo.rect;
         const frame = rectInfo.frameRect;
