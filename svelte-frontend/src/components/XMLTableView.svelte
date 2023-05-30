@@ -15,10 +15,8 @@
     let _frameYInput:HTMLInputElement = null;
     let _frameWidthInput:HTMLInputElement = null;
     let _frameHeightInput:HTMLInputElement = null;
-    let _newWidthInput:HTMLInputElement = null; // newWidth
-    let _newHeightInput:HTMLInputElement = null; // newHeight
-    // let _scaleXInput:HTMLInputElement = null; // newWidth
-    // let _scaleYInput:HTMLInputElement = null; // newHeight
+    let _newWidthInput:HTMLInputElement = null;
+    let _newHeightInput:HTMLInputElement = null;
     let _flipXInput:HTMLInputElement = null;
     let _flipYInput:HTMLInputElement = null;
 
@@ -37,9 +35,6 @@
             await animController.initFrames([ sprframe ]);
             animController.clearCanvas();
             animController.drawImage(animController.curImgs[0], sprframe, true);
-
-            // spriteframes = spriteframes;
-            // sprframe = sprframe;
         }
     }
 
@@ -62,15 +57,12 @@
             }
         }
         rows[index].style.backgroundColor = 'blue';
-        // console.log(`selected: ${currSelectedRow} | frame = ${curSprFrame.sprId}`);
         _frameXInput.value = '' + curSprFrame.frameRect.frameX;
         _frameYInput.value = '' + curSprFrame.frameRect.frameY;
         _frameWidthInput.value = '' + curSprFrame.frameRect.frameWidth;
         _frameHeightInput.value = '' + curSprFrame.frameRect.frameHeight;
-        _newWidthInput.value = '' + curSprFrame.transform.newWidth; // newWidth
-        _newHeightInput.value = '' + curSprFrame.transform.newHeight; // newHeight
-        // _newWidthInput.value = '' + curSprFrame.transform.scaleX; // newWidth
-        // _newHeightInput.value = '' + curSprFrame.transform.scaleY; // newHeight
+        _newWidthInput.value = '' + curSprFrame.transform.newWidth;
+        _newHeightInput.value = '' + curSprFrame.transform.newHeight;
         _flipXInput.checked = curSprFrame.transform.flipX;
         _flipYInput.checked = curSprFrame.transform.flipY;
     }
@@ -82,14 +74,11 @@
         curSprFrame.frameRect.frameY = +_frameYInput.value;
         curSprFrame.frameRect.frameWidth = +_frameWidthInput.value;
         curSprFrame.frameRect.frameHeight = +_frameHeightInput.value;
-        curSprFrame.transform.newWidth = +_newWidthInput.value; // newWidth
-        curSprFrame.transform.newHeight = +_newHeightInput.value; // newHeight
-        // curSprFrame.transform.scaleX = +_newWidthInput.value; // newWidth
-        // curSprFrame.transform.scaleY = +_newHeightInput.value; // newHeight
+        curSprFrame.transform.newWidth = +_newWidthInput.value;
+        curSprFrame.transform.newHeight = +_newHeightInput.value;
         curSprFrame.transform.flipX = _flipXInput.checked;
         curSprFrame.transform.flipY = _flipYInput.checked;
         curSprFrame._changed = true;
-        // curSprFrame = curSprFrame;
         spriteframes.set($spriteframes);
         drawFrameWithBox(curSprFrame).then(()=>{});
     }
@@ -112,10 +101,8 @@
                     <th>Frame Y</th>
                     <th>Frame Width</th>
                     <th>Frame Height</th>
-                    <th>New Image Width</th> <!--New width-->
-                    <th>New Image Height</th> <!--New height-->
-                    <!-- <th>Scale X</th> --> <!--New width-->
-                    <!-- <th>Scale Y</th> --> <!--New height-->
+                    <th>New Image Width</th>
+                    <th>New Image Height</th>
                     <th>flip X</th>
                     <th>flip Y</th>
                 </thead>
@@ -133,10 +120,8 @@
                             <td>{spr.frameRect.frameY}</td>
                             <td>{spr.frameRect.frameWidth}</td>
                             <td>{spr.frameRect.frameHeight}</td>
-                            <td>{spr.transform.newWidth}</td> <!--New width-->
-                            <td>{spr.transform.newHeight}</td> <!--New Height-->
-                            <!-- <td>{spr.transform.scaleX}</td> --> <!--New width-->
-                            <!-- <td>{spr.transform.scaleY}</td> --> <!--New Height-->
+                            <td>{spr.transform.newWidth}</td>
+                            <td>{spr.transform.newHeight}</td>
                             <td>{spr.transform.flipX}</td>
                             <td>{spr.transform.flipY}</td>
                         </tr>
@@ -162,26 +147,14 @@
                     Frame Height
                     <input type="number" name="frame-height" id="frame-height" on:input={onValueChange} bind:this={_frameHeightInput}>
                 </label>
-                <!--New width-->
                 <label class="xmlview-input" for="scale-x">
                     Image Width
                     <input type="number" name="scale-x" id="scale-x" min="1" on:input={onValueChange} bind:this={_newWidthInput}>
                 </label>
-                <!--New height-->
                 <label class="xmlview-input" for="scale-y">
                     Image Height
                     <input type="number" name="scale-y" id="scale-y" min="1" on:input={onValueChange} bind:this={_newHeightInput}>
                 </label>
-                <!--New width-->
-                <!-- <label class="xmlview-input" for="scale-x">
-                    Scale X
-                    <input type="number" name="scale-x" id="scale-x" min="0.01" step="0.01" on:input={onValueChange} bind:this={_newWidthInput}>
-                </label> -->
-                <!--New height-->
-                <!-- <label class="xmlview-input" for="scale-y">
-                    Scale Y
-                    <input type="number" name="scale-y" id="scale-y" min="0.01" step="0.01" on:input={onValueChange} bind:this={_newHeightInput}>
-                </label> -->
                 <label class="xmlview-input" for="flip-x">
                     Flip X
                     <input type="checkbox" name="flip-x" id="flip-x" on:input={onValueChange} bind:this={_flipXInput}>

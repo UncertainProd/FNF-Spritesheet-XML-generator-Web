@@ -58,11 +58,6 @@
     function handleClick()
     {
         frameInfo.selected = !frameInfo.selected;
-        // frameInfo.imgfileref.arrayBuffer().then((abuf) => {
-        //     crypto.subtle.digest('SHA-1', abuf).then((dgst) => {
-        //         console.log(arrayBufferToBase64(dgst))
-        //     })
-        // });
     }
 
     function onDelete(sprframe: SpriteFrameData)

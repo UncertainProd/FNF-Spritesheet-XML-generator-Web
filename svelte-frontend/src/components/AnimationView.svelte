@@ -26,11 +26,6 @@
             {
                 console.log("Clearing canvas: ", animController.isPlaying);
                 animController.clearCanvas();
-                // if(animController.isPlaying)
-                // {
-                //     console.log("Clearing canvas: ", animController.isPlaying);
-                //     animController.clearCanvas();
-                // }
             }
             else
             {
@@ -70,7 +65,6 @@
         if(animController.animId === null)
         {
             await animController.initFrames(prefixes.get(selectedOption));
-            // animController.initFrames(prefixes.get(selectedOption));
             animController.play();
             animController.context.canvas.width = window.innerWidth * 0.9;
             animController.context.canvas.height = window.innerHeight * 0.9;

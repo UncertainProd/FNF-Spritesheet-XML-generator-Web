@@ -101,14 +101,6 @@
         return false;
     }
 
-    // document.addEventListener('keypress', (e) => {
-    //     console.log('spsh map: ');
-    //     for(const x of $spritesheet_map.entries())
-    //     {
-    //         console.log(x[0] + '   count: ' + x[1][1]);
-    //     }
-    // });
-
     function setAnimationPrefix(prefix: string)
     {
         // for each selected, change it's animation prefix
@@ -262,10 +254,8 @@
                         // sprdat.sprId,
                         new Uint8Array(abuf),
                         sprdat.animationPrefix,
-                        sprdat.transform.newWidth, // newWidth
-                        sprdat.transform.newHeight, // newHeight
-                        // sprdat.transform.scaleX, // newWidth
-                        // sprdat.transform.scaleY, // newHeight
+                        sprdat.transform.newWidth,
+                        sprdat.transform.newHeight,
                         sprdat.transform.flipX,
                         sprdat.transform.flipY,
                         BigInt(sprdat.frameRect.frameX),
@@ -284,10 +274,8 @@
                         sprdat.rect.y,
                         sprdat.rect.width,
                         sprdat.rect.height,
-                        sprdat.transform.newWidth, // newWidth
-                        sprdat.transform.newHeight, // newHeight
-                        // sprdat.transform.scaleX, // newWidth
-                        // sprdat.transform.scaleY, // newHeight
+                        sprdat.transform.newWidth,
+                        sprdat.transform.newHeight,
                         sprdat.transform.flipX,
                         sprdat.transform.flipY,
                         BigInt(sprdat.frameRect.frameX),
@@ -302,7 +290,6 @@
         }
         const finalImage = growingpacker.make_packed_image();
         saveFile(finalImage, 'testing.zip');
-        // console.log("No of bytes written: " + finalImage);
     }
 </script>
 

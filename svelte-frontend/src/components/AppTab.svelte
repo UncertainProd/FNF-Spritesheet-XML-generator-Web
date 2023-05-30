@@ -13,7 +13,6 @@
     .tabs {
         display: inline;
         text-align: center;
-        /* margin-top: 1rem; */
 	}
 
 	#app-choice-icongrid, #app-choice-spsh {
