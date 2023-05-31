@@ -64,9 +64,9 @@ export class SpriteFrameData
         const clonedFrame = new SpriteFrameData(this.sprId, this.type, this.imgfileref, this.xmlfileref, this.spritesheetId);
         clonedFrame.selected = this.selected;
         clonedFrame.animationPrefix = this.animationPrefix;
-        clonedFrame.rect = this.rect;
-        clonedFrame.transform = this.transform;
-        clonedFrame.frameRect = this.frameRect;
+        clonedFrame.rect = { ...this.rect };
+        clonedFrame.transform = { ...this.transform };
+        clonedFrame.frameRect = { ...this.frameRect };
         return clonedFrame;
     }
 }
