@@ -93,8 +93,8 @@ export class AnimationController {
         this.context.drawImage(
             frameImg,
             r.x, r.y, r.width, r.height, 
-            -frame.frameX,
-            -frame.frameY,
+            -frame.frameX * flipFactorX,
+            -frame.frameY * flipFactorY,
             transform.newWidth,
             transform.newHeight
         );
