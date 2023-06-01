@@ -82,12 +82,12 @@ export class AnimationController {
         this.context.scale(totalScaleToDrawX, totalScaleToDrawY);
         if(transform.flipX)
         {
-            this.context.translate(-frame.frameWidth, 0);
+            this.context.translate(-transform.newWidth, 0);
         }
 
         if(transform.flipY)
         {
-            this.context.translate(0, -frame.frameHeight);
+            this.context.translate(0, -transform.newHeight);
         }
 
         this.context.drawImage(
