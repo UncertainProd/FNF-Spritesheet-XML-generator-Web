@@ -104,27 +104,17 @@ impl GrowingPacker
         frame_height: u64,
     )
     {
-        let true_img = transform_image(image::load_from_memory(&img_data).expect("Should be valid image"), TransformInfo { new_width, new_height, flip_x, flip_y });
-        let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
-            true_img
+        self._add_frame(
+            image::load_from_memory(&img_data).expect("Should be valid image"), 
+            TransformInfo { new_width, new_height, flip_x, flip_y }, 
+            animation_prefix, 
+            FrameRectInfo { 
+                frame_x, 
+                frame_y, 
+                frame_width, 
+                frame_height
+            }
         );
-
-        let cur_frameinfo = FrameInfo {
-            // spr_id,
-            // img_cache_id: imghash,
-            animation_prefix,
-            frame_rect: FrameRectInfo { frame_x: frame_x - (left as i64), frame_y: frame_y - (top as i64), frame_width, frame_height }
-        };
-        
-        let imgframes = self.frames.get_mut(&imghash);
-        match imgframes {
-            Some(frames) => {
-                frames.push(cur_frameinfo);
-            }
-            None => {
-                self.frames.insert(imghash, vec![ cur_frameinfo ]);
-            }
-        }
     }
 
     pub fn add_spritesheet_frame(
@@ -151,8 +141,33 @@ impl GrowingPacker
             .expect("Key not in map!")
             .crop_imm(rect_x, rect_y, rect_width, rect_height);
 
-        
-        let true_img = transform_image(pre_img, TransformInfo { new_width, new_height, flip_x, flip_y });
+        self._add_frame(
+            pre_img, 
+            TransformInfo { 
+                new_width, 
+                new_height, 
+                flip_x, 
+                flip_y 
+            }, 
+            animation_prefix, 
+            FrameRectInfo { 
+                frame_x, 
+                frame_y, 
+                frame_width, 
+                frame_height 
+            }
+        );
+    }
+
+    fn _add_frame(
+        &mut self,
+        frame_img: DynamicImage,
+        transform: TransformInfo,
+        animation_prefix: String,
+        raw_frame_rect: FrameRectInfo
+    )
+    {
+        let true_img = transform_image(frame_img, transform);
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
             true_img
         );
@@ -161,9 +176,14 @@ impl GrowingPacker
             // spr_id,
             // img_cache_id: imghash,
             animation_prefix,
-            frame_rect: FrameRectInfo { frame_x: frame_x - (left as i64), frame_y: frame_y - (top as i64), frame_width, frame_height }
+            frame_rect: FrameRectInfo {
+                frame_x: raw_frame_rect.frame_x - (left as i64), 
+                frame_y: raw_frame_rect.frame_y - (top as i64), 
+                frame_width: raw_frame_rect.frame_width, 
+                frame_height: raw_frame_rect.frame_height
+            }
         };
-
+        
         let imgframes = self.frames.get_mut(&imghash);
         match imgframes {
             Some(frames) => {
