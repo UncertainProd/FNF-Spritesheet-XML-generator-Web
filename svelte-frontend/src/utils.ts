@@ -132,6 +132,10 @@ export async function hashImage(imgdata: Uint8Array): Promise<string>
     return base64EncArr(new Uint8Array(digest));
 }
 
+export function deferTask(taskFunc: Function, delay:number = 0) {
+    setTimeout(taskFunc, delay);
+}
+
 export class UIdGen{
     _val: number
 

@@ -2,7 +2,7 @@
     import { fade } from 'svelte/transition'
     import { quadInOut } from 'svelte/easing'
     import Modal from '../components/Modal.svelte';
-    import { getImageDimensions, hashImage, openFileDialog, saveFile, stringFind, uidgen } from '../utils'
+    import { deferTask, getImageDimensions, hashImage, openFileDialog, saveFile, stringFind, uidgen } from '../utils'
     import { onMount, onDestroy } from 'svelte';
     import AnimationView from './AnimationView.svelte';
     import XmlTableView from './XMLTableView.svelte';
@@ -233,65 +233,104 @@
         }
     }
 
+    let genPercent = 0;
+    let progTxt = 'Adding images: 0%';
+    let progDlg: HTMLDialogElement = null;
     async function generateSpritesheetXML()
     {
+        progTxt = 'Adding images: 0%';
+        genPercent = 0;
+        progDlg.showModal();
         const { GrowingPacker } = wasm;
         const growingpacker = GrowingPacker.new();
-        for(const items of $spritesheet_map)
-        {
-            const key = items[0];
-            const data = items[1][0];
-            console.log("adding " + key + " to store!");
-            growingpacker.add_image_to_store(key, base64DecToArr(data, null));
-        }
-        for(const sprdat of $spriteframes)
-        {
-            switch (sprdat.type) {
-                case 'single_frame':
-                    console.log("Reading single frame" + sprdat.sprId);
-                    const abuf = await sprdat.imgfileref.arrayBuffer();
-                    growingpacker.add_single_frame(
-                        // sprdat.sprId,
-                        new Uint8Array(abuf),
-                        sprdat.animationPrefix,
-                        sprdat.transform.newWidth,
-                        sprdat.transform.newHeight,
-                        sprdat.transform.flipX,
-                        sprdat.transform.flipY,
-                        BigInt(sprdat.frameRect.frameX),
-                        BigInt(sprdat.frameRect.frameY),
-                        BigInt(sprdat.frameRect.frameWidth),
-                        BigInt(sprdat.frameRect.frameHeight),
-                    );
-                    break;
-                case 'spritesheet_frame':
-                    console.log("Putting spritesheet frame" + sprdat.sprId);
-                    growingpacker.add_spritesheet_frame(
-                        // sprdat.sprId,
-                        sprdat.spritesheetId,
-                        sprdat.animationPrefix,
-                        sprdat.rect.x,
-                        sprdat.rect.y,
-                        sprdat.rect.width,
-                        sprdat.rect.height,
-                        sprdat.transform.newWidth,
-                        sprdat.transform.newHeight,
-                        sprdat.transform.flipX,
-                        sprdat.transform.flipY,
-                        BigInt(sprdat.frameRect.frameX),
-                        BigInt(sprdat.frameRect.frameY),
-                        BigInt(sprdat.frameRect.frameWidth),
-                        BigInt(sprdat.frameRect.frameHeight)
-                    )
-                    break;
-                default:
-                    break;
+
+        const n_steps = Array.from($spritesheet_map.entries()).length + $spriteframes.length;
+        let curStepNumber = 0;
+        
+        deferTask(()=>{
+            for(const items of $spritesheet_map)
+            {
+                const key = items[0];
+                const data = items[1][0];
+                console.log("adding " + key + " to store!");
+                growingpacker.add_image_to_store(key, base64DecToArr(data, null));
+                curStepNumber++;
+                genPercent = curStepNumber/n_steps;
+                progTxt = `Adding images: ${Math.round(genPercent * 100)}%`;
             }
-        }
-        const finalImage = growingpacker.make_packed_image();
-        saveFile(finalImage, 'testing.zip');
+        });
+        deferTask(async ()=>{
+            for(const sprdat of $spriteframes)
+            {
+                switch (sprdat.type) {
+                    case 'single_frame':
+                        console.log("Reading single frame" + sprdat.sprId);
+                        const abuf = await sprdat.imgfileref.arrayBuffer();
+                        growingpacker.add_single_frame(
+                            // sprdat.sprId,
+                            new Uint8Array(abuf),
+                            sprdat.animationPrefix,
+                            sprdat.transform.newWidth,
+                            sprdat.transform.newHeight,
+                            sprdat.transform.flipX,
+                            sprdat.transform.flipY,
+                            BigInt(sprdat.frameRect.frameX),
+                            BigInt(sprdat.frameRect.frameY),
+                            BigInt(sprdat.frameRect.frameWidth),
+                            BigInt(sprdat.frameRect.frameHeight),
+                        );
+                        break;
+                    case 'spritesheet_frame':
+                        console.log("Putting spritesheet frame" + sprdat.sprId);
+                        deferTask(()=>{
+                            growingpacker.add_spritesheet_frame(
+                                // sprdat.sprId,
+                                sprdat.spritesheetId,
+                                sprdat.animationPrefix,
+                                sprdat.rect.x,
+                                sprdat.rect.y,
+                                sprdat.rect.width,
+                                sprdat.rect.height,
+                                sprdat.transform.newWidth,
+                                sprdat.transform.newHeight,
+                                sprdat.transform.flipX,
+                                sprdat.transform.flipY,
+                                BigInt(sprdat.frameRect.frameX),
+                                BigInt(sprdat.frameRect.frameY),
+                                BigInt(sprdat.frameRect.frameWidth),
+                                BigInt(sprdat.frameRect.frameHeight)
+                            )
+                        });
+                        break;
+                    default:
+                        break;
+                }
+                curStepNumber++;
+                genPercent = curStepNumber/n_steps;
+                progTxt = `Adding images: ${Math.round(genPercent * 100)}%`;
+            }
+
+            deferTask(()=>{
+                progTxt = 'Generating spritesheet and XML....';
+                deferTask(()=>{
+                    const finalImage = growingpacker.make_packed_image();
+                    saveFile(finalImage, 'testing.zip');
+                    progDlg.close();
+                });
+            });
+        });
     }
 </script>
+
+<dialog bind:this={progDlg}>
+	<div>
+        <label for="gen-progress">
+            {progTxt}
+        </label>
+        <progress id="gen-progress" value={Math.round(genPercent * 100)} max="100">
+        </progress>
+	</div>
+</dialog>
 
 <Modal bind:showModal={spritesheetXMLModalShown}>
     <p slot="header">Select Spritesheet or XML file</p>
