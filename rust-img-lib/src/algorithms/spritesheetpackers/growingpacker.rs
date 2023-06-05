@@ -231,6 +231,7 @@ impl GrowingPacker
                 }
             }
         }
+        texture_atlas.subtextures.sort(); // makes sure that animation frame entries in xml are not out of order
         texture_atlas.write_to(&mut xml_bytes);
         
         let pngbytes = encode_image_as_png(base);

@@ -22,7 +22,7 @@ fn zero_fill_num(num: u32, to_len: usize) -> Result<String, String>
     }
 }
 
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct TextureAtlas
 {
     pub image_path: String,
@@ -215,7 +215,8 @@ impl TextureAtlas
     }
 }
 
-#[derive(Debug)]
+// #[derive(Debug, PartialEq, Eq, PartialOrd)]
+#[derive(PartialEq, Eq, PartialOrd)]
 pub struct SubTexture
 {
     pub name: String,
@@ -229,6 +230,12 @@ pub struct SubTexture
     pub frame_height: Option<u32>,
     pub flip_x: Option<bool>,
     pub flip_y: Option<bool>
+}
+
+impl Ord for SubTexture {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.name.cmp(&other.name)
+    }
 }
 
 impl SubTexture
