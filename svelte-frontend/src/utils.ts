@@ -132,6 +132,33 @@ export async function hashImage(imgdata: Uint8Array): Promise<string>
     return base64EncArr(new Uint8Array(digest));
 }
 
+
+function filenameReservedRegex() {
+	return /[<>:"/\\|?*\u0000-\u001F]/g;
+}
+
+function windowsReservedNameRegex() {
+	return /^(con|prn|aux|nul|com\d|lpt\d)$/i;
+}
+
+// @see https://github.com/sindresorhus/valid-filename
+export function isValidFilename(filename: string)
+{
+    if (!filename || filename.length > 255) {
+		return false;
+	}
+
+	if (filenameReservedRegex().test(filename) || windowsReservedNameRegex().test(filename)) {
+		return false;
+	}
+
+	if (filename === '.' || filename === '..') {
+		return false;
+	}
+
+	return true;
+}
+
 export function deferTask(taskFunc: Function, delay:number = 0) {
     setTimeout(taskFunc, delay);
 }

@@ -5,6 +5,7 @@
     import { spriteframes } from '../stores';
 
     export let wasm: Wasm_T;
+    export let charname: string;
 
     wasm.greet('hi');
 </script>
@@ -18,7 +19,7 @@
 </div>
 
 
-<SpritesheetGenControls wasm={wasm} />
+<SpritesheetGenControls {charname} wasm={wasm} />
 
 
 <style>

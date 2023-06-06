@@ -2,7 +2,7 @@ use std::{collections::HashMap, io::{self, Write}};
 
 use wasm_bindgen::prelude::*;
 
-use crate::{utils::{PackError, encode_image_as_png, self, transform_image}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}};
+use crate::{utils::{PackError, encode_image_as_png, self, transform_image, pad_image_uniform}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}};
 use image::{imageops, DynamicImage};
 use super::helpers;
 
@@ -44,18 +44,19 @@ impl ImageCache {
         Self { cache: HashMap::new() }
     }
 
-    pub fn add_image(&mut self, img: DynamicImage) -> (u64, (u32, u32, u32, u32))
+    pub fn add_image(&mut self, img: DynamicImage, padding: u32) -> (u64, (i32, i32, u32, u32))
     {
         let bounds_opt = utils::get_bounding_box(&img, None);
         match bounds_opt {
             Some((left, top, right, bottom)) => {
                 let cropped_img = img.crop_imm(left, top, right - left, bottom - top);
+                let cropped_img = pad_image_uniform(cropped_img, padding);
                 let imghash = utils::get_hash_from_image_bytes(cropped_img.as_bytes());
                 if !self.cache.contains_key(&imghash)
                 {
                     self.cache.insert(imghash, cropped_img);
                 }
-                return (imghash, (left, top, right, bottom));
+                return (imghash, ((left as i32 - padding as i32), (top as i32 - padding as i32), right + padding, bottom + padding));
             }
             None => {
                 todo!()
@@ -67,6 +68,8 @@ impl ImageCache {
 #[wasm_bindgen]
 pub struct GrowingPacker
 {
+    character_name: String,
+    img_padding: u32,
     frame_image_cache: ImageCache,
     frames: HashMap<u64, Vec<FrameInfo>>,
     _spritesheet_store: HashMap<String, image::DynamicImage>
@@ -75,9 +78,11 @@ pub struct GrowingPacker
 #[wasm_bindgen]
 impl GrowingPacker
 {
-    pub fn new() -> Self
+    pub fn new(charname: String, padding: u32) -> Self
     {
         Self {
+            character_name: charname,
+            img_padding: padding,
             frame_image_cache: ImageCache::new(),
             frames: HashMap::new(),
             _spritesheet_store: HashMap::new()
@@ -169,7 +174,8 @@ impl GrowingPacker
     {
         let true_img = transform_image(frame_img, transform);
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
-            true_img
+            true_img,
+            self.img_padding
         );
 
         let cur_frameinfo = FrameInfo {
@@ -203,7 +209,7 @@ impl GrowingPacker
 
         let mut xml_bytes = Vec::new();
         let mut texture_atlas = textureatlas_format::TextureAtlas::default();
-        texture_atlas.image_path = "testing.png".to_string();
+        texture_atlas.image_path = self.character_name.clone() + ".png";
         
         // group frames by id
         for fit in fits
@@ -242,10 +248,10 @@ impl GrowingPacker
         let mut zip_writer = zip::ZipWriter::new(zipcursor);
         let zip_opts = zip::write::FileOptions::default();
         
-        zip_writer.start_file("testfile.png", zip_opts).expect("Could not write to zip!");
+        zip_writer.start_file(self.character_name.clone() + ".png", zip_opts).expect("Could not write to zip!");
         zip_writer.write_all(&pngbytes).expect("Zip error!");
 
-        zip_writer.start_file("testfile.xml", zip_opts).expect("Could not write to zip!");
+        zip_writer.start_file(self.character_name.clone() + ".xml", zip_opts).expect("Could not write to zip!");
         zip_writer.write_all(&xml_bytes).expect("Zip error!");
 
         zip_writer.finish().expect("Error finising zip!");

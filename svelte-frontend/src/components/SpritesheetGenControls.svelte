@@ -2,7 +2,7 @@
     import { fade } from 'svelte/transition'
     import { quadInOut } from 'svelte/easing'
     import Modal from '../components/Modal.svelte';
-    import { deferTask, getImageDimensions, hashImage, openFileDialog, saveFile, stringFind, uidgen } from '../utils'
+    import { deferTask, getImageDimensions, hashImage, isValidFilename, openFileDialog, saveFile, stringFind, uidgen } from '../utils'
     import { onMount, onDestroy } from 'svelte';
     import AnimationView from './AnimationView.svelte';
     import XmlTableView from './XMLTableView.svelte';
@@ -11,6 +11,7 @@
     import { arrayBufferToBase64, base64DecToArr } from '../b64utils';
     import type { Wasm_T } from '../global';
     export let wasm: Wasm_T;
+    export let charname: string;
 
     async function onPNGAdd(e: Event)
     {
@@ -238,11 +239,22 @@
     let progDlg: HTMLDialogElement = null;
     async function generateSpritesheetXML()
     {
+        if(!(isValidFilename(charname) && isValidFilename(charname + '.zip')))
+        {
+            alert("Please enter a valid filename as the name of your character!");
+            return;
+        }
+
+        if($spriteframes.length <= 0)
+        {
+            alert('Please add some images/spritesheets!');
+            return;
+        }
         progTxt = 'Adding images: 0%';
         genPercent = 0;
         progDlg.showModal();
         const { GrowingPacker } = wasm;
-        const growingpacker = GrowingPacker.new();
+        const growingpacker = GrowingPacker.new(charname, 0);
 
         const n_steps = Array.from($spritesheet_map.entries()).length + $spriteframes.length;
         let curStepNumber = 0;
@@ -314,7 +326,7 @@
                 progTxt = 'Generating spritesheet and XML....';
                 deferTask(()=>{
                     const finalImage = growingpacker.make_packed_image();
-                    saveFile(finalImage, 'testing.zip');
+                    saveFile(finalImage, charname + '.zip');
                     progDlg.close();
                 });
             });

@@ -96,6 +96,13 @@ pub fn transform_image(img: image::DynamicImage, img_transform: TransformInfo) -
     return new_img;
 }
 
+pub fn pad_image_uniform(img: image::DynamicImage, padding: u32) -> image::DynamicImage
+{
+    let mut padded_img = image::DynamicImage::new_rgba8(img.width() + 2*padding, img.height() + 2*padding);
+    imageops::overlay(&mut padded_img, &img, padding as i64, padding as i64);
+    padded_img
+}
+
 #[derive(Debug)]
 pub struct PackError;
 

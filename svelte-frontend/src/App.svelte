@@ -29,7 +29,7 @@
 
 	<div id="tab-container">
 		{#if curChoice == "spsh"}
-			<SpritesheetGenerator wasm={wasm} />
+			<SpritesheetGenerator charname={characterName} wasm={wasm} />
 		{:else if curChoice == "icongrid"}
 			<IcongridGenerator bind:charname={characterName} wasm={wasm} />
 		{/if}
