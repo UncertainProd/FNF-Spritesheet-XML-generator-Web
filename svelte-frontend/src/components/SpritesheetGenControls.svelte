@@ -283,6 +283,17 @@
             }
         });
         deferTask(async ()=>{
+            let perFramePrefix = '';
+            switch (imgSettings.prefixType) {
+                case 'character-name':
+                    perFramePrefix = charname + ' ';
+                    break;
+                case 'custom-prefix':
+                    perFramePrefix = imgSettings.customPrefix + ' ';
+                    break;
+                default:
+                    break;
+            }
             for(const sprdat of $spriteframes)
             {
                 switch (sprdat.type) {
@@ -292,7 +303,7 @@
                         growingpacker.add_single_frame(
                             // sprdat.sprId,
                             new Uint8Array(abuf),
-                            sprdat.animationPrefix,
+                            perFramePrefix + sprdat.animationPrefix,
                             sprdat.transform.newWidth,
                             sprdat.transform.newHeight,
                             sprdat.transform.flipX,
@@ -309,7 +320,7 @@
                             growingpacker.add_spritesheet_frame(
                                 // sprdat.sprId,
                                 sprdat.spritesheetId,
-                                sprdat.animationPrefix,
+                                ((imgSettings.usePrefixOnXMLFrames) ? perFramePrefix : '') + sprdat.animationPrefix,
                                 sprdat.rect.x,
                                 sprdat.rect.y,
                                 sprdat.rect.width,
