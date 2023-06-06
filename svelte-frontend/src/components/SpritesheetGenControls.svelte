@@ -10,8 +10,17 @@
     import { spriteframes, spritesheet_map } from '../stores';
     import { arrayBufferToBase64, base64DecToArr } from '../b64utils';
     import type { Wasm_T } from '../global';
+    import SettingsModal from './SettingsModal.svelte';
+
     export let wasm: Wasm_T;
     export let charname: string;
+
+    let imgSettings = {
+        padding: 2,
+        prefixType: 'no-prefix',
+        usePrefixOnXMLFrames: false,
+        customPrefix: ''
+    };
 
     async function onPNGAdd(e: Event)
     {
@@ -128,6 +137,7 @@
     let selectionOptsShown = false;
     let spritesheetXMLModalShown = false;
     let animationPrefixModalShown = false;
+    let settingsModalShown = false;
     let animationViewShown = false;
     let xmlViewShown = false;
 
@@ -239,6 +249,7 @@
     let progDlg: HTMLDialogElement = null;
     async function generateSpritesheetXML()
     {
+        console.log(imgSettings);
         if(!(isValidFilename(charname) && isValidFilename(charname + '.zip')))
         {
             alert("Please enter a valid filename as the name of your character!");
@@ -254,7 +265,7 @@
         genPercent = 0;
         progDlg.showModal();
         const { GrowingPacker } = wasm;
-        const growingpacker = GrowingPacker.new(charname, 0);
+        const growingpacker = GrowingPacker.new(charname, imgSettings.padding);
 
         const n_steps = Array.from($spritesheet_map.entries()).length + $spriteframes.length;
         let curStepNumber = 0;
@@ -363,11 +374,12 @@
     <button slot="accept-btn" on:click={()=>{ setAnimationPrefix(animPrefixInput.value); animationPrefixModalShown=false }}>Set animation prefix</button>
 </Modal>
 
+<SettingsModal bind:showView={settingsModalShown} bind:settings={imgSettings} />
 <AnimationView bind:showView={animationViewShown} />
 <XmlTableView bind:showView={xmlViewShown} />
 
 <div id="controls">
-    <button>Settings</button>
+    <button on:click={()=>{ settingsModalShown = true; }}>Settings</button>
     <button on:click|self|stopPropagation={()=>{ optsShown = !optsShown }}>View</button>
     {#if optsShown}
         <div bind:this={viewOptsDiv} class="view-menu" id="view-opts" in:fadeNSlide="{{ duration: 100, easing: quadInOut }}" out:fadeNSlide="{{ duration: 100, easing: quadInOut }}">
