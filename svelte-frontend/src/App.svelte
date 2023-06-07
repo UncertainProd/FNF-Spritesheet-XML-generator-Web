@@ -13,7 +13,7 @@
 </script>
 
 <main>
-	<h1 id="title">FNF Spritesheet and XML Generator Web (expermental version)</h1>
+	<h1 id="title">FNF Spritesheet and XML Generator Web (experimental version)</h1>
 	
 	<div id="character-name-control">
 		<label for="char-name">
