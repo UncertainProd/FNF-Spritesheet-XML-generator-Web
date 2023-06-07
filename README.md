@@ -3,7 +3,7 @@ An (experimental) online version of the [FnF-Spritesheet-and-XML-Maker](https://
 
 ### This tool can be used online by following [this link](https://uncertainprod.github.io/FNF-Spritesheet-XML-generator-Web). Tested mainly on Chrome and Firefox browsers
 
-<!-- ![Inital Screen](imgdocs/initScreen.png) -->
+![Inital Screen](imgdocs/initScreen.png)
 
 ## How to generate spritesheet and XML files for your character:
 
@@ -18,25 +18,25 @@ If you want to extract and add frames from a pre-existing Spritesheet and XML, c
 
 Once you have added some frames it will look like this:
 
-<!-- ![Added some example frames](imgdocs/addedFrames.png) -->
+![Added some example frames](imgdocs/addedFrames.png)
 <br />
 <br />
 Click on some frames whose animation prefix you want to set and then click the `Set animation prefix` button as shown below:
 
-<!-- ![Animation prefix button](imgdocs/settingAnimPrefix.png) -->
-<!-- ![Setting Animation Prefix](imgdocs/addAnimPrefix.png) -->
+![Animation prefix button](imgdocs/settingAnimPrefix.png)
+![Setting Animation Prefix](imgdocs/addAnimPrefix.png)
 
 Once you click the `Set animation prefix` button in the dialog, it will set that animation name for all the frames that are selected.
 
 ### Previewing The Animations
 By click on `View` > `View Animation`, you can select the name of the animation you want to see and click the play button to play that animation. In case the animation is too big (usually on phone screens), you can change the `Animation Scale` to reduce the size of the animation for better visibility.
-<!-- ![Animation View](imgdocs/animationView.png) -->
+![Animation View](imgdocs/animationView.png)
 
 ### Tweaking the sprite frames
 By going into `View` > `View XML structure`, you can change the appearance of each sprite frame. It supports scaling, flipping and changing the values of `frameX`, `frameY`, `frameWidth` and `frameHeight`.
 
-<!-- ![XML Table View](imgdocs/xmlViewTable.png) -->
-<!-- ![Frame Preview](imgdocs/xmlViewFrame.png) -->
+![XML Table View](imgdocs/xmlViewTable.png)
+![Frame Preview](imgdocs/xmlViewFrame.png)
 
 ### Generating the final XML and PNG files
 When you're done adding all the frames and giving them animation names, it's time to generate the final PNG and XML files!
