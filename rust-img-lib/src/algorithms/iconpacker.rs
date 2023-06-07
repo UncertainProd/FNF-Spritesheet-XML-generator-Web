@@ -22,13 +22,13 @@ impl IconPacker
     {
         let img_array = js_sys::Uint8Array::new(&image_buffer);
         let img_bytes = img_array.to_vec();
-        self.images.push(image::load_from_memory(&img_bytes).expect("Error loading image from memori!"));
+        self.images.push(image::load_from_memory(&img_bytes).expect("Error loading image from memory!"));
     }
 
     /// Returns the final image as a PNG
     pub fn make_packed_image(&mut self) -> Vec<u8>
     {
-        let (final_width, final_height, fits) = self.pack().expect("How did you even?!?!");
+        let (final_width, final_height, fits) = self.pack().expect("Big Packing error!");
         let mut base = image::DynamicImage::new_rgba8(final_width, final_height);
         for fit in fits
         {

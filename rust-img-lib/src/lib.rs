@@ -3,8 +3,8 @@ mod algorithms;
 mod textureatlas_format;
 
 use base64::Engine;
-use image::{imageops, ImageEncoder};
-use utils::set_panic_hook;
+use image::{imageops, GenericImageView};
+use utils::{set_panic_hook, encode_image_as_png};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -25,51 +25,78 @@ fn string_to_img(imgstring: String) -> Result<image::DynamicImage, image::ImageE
     image::load_from_memory(&imgbytes)
 }
 
-fn img_to_string(img: image::DynamicImage) -> String
+#[inline]
+fn row_col_from_idx(idx: u32, icons_per_row: u32) -> (u32, u32)
 {
-    // png encode
-    let mut pngbuf:Vec<u8> = Vec::new();
-    let pngencoder = image::codecs::png::PngEncoder::new(&mut pngbuf);
-    pngencoder.write_image(img.as_bytes(), img.width(), img.height(), img.color()).unwrap();
-
-    // base64 encode
-    base64::engine::general_purpose::STANDARD.encode(pngbuf)
+    (idx / icons_per_row, idx % icons_per_row)
 }
 
 #[wasm_bindgen]
-pub fn make_icongrid(img_datas: js_sys::Array) -> String
+pub fn make_icongrid_legacy(icongrid: Vec<u8>, icons: js_sys::Array) -> Vec<u8>
 {
+    let icon_size_default:u32 = 150;
     let mut imgvec = vec![];
-
-    let mut total_width:u32 = 0;
-    let mut total_height:u32 = 0;
     
-    let arr_len = img_datas.length();
-    alert(&format!("Array length = {}", arr_len));
+    let arr_len = icons.length();
     for i in 0..arr_len
     {
-        let imgdata = img_datas.get(i).as_string().unwrap();
-        let img = string_to_img(imgdata).unwrap();
+        let imgdata = icons.get(i).as_string().unwrap();
+        let icon_img = string_to_img(imgdata).unwrap();
 
-        total_width += img.width();
-        total_height = std::cmp::max(total_height, img.height());
-
-        imgvec.push(img);
+        imgvec.push(icon_img);
     }
 
-    let mut base = image::DynamicImage::new_rgba8(total_width, total_height);
-    let mut cur_x:u32 = 0;
-    for img in imgvec
+    let mut icongrid_img = image::load_from_memory(&icongrid).unwrap();
+    
+    let icons_per_row = icongrid_img.width() / icon_size_default;
+    let mut rows_available = icongrid_img.height() / icon_size_default;
+    let (_, _, _, down) = utils::get_bounding_box(&icongrid_img, None).unwrap();
+
+    let bottom_row_idx = down / icon_size_default;
+
+    let bottom_row_img = icongrid_img.crop_imm(0, icon_size_default * bottom_row_idx, icongrid_img.width(), icon_size_default);
+    let (_, _, right, _) = utils::get_bounding_box(&bottom_row_img, None).unwrap();
+    let right_col_idx = right / icon_size_default;
+
+    let mut cur_total_idx = bottom_row_idx * icons_per_row + right_col_idx;
+
+    for icon in imgvec
     {
-        imageops::overlay(&mut base, &img, cur_x.into(), 0);
-        cur_x += img.width();
+        cur_total_idx += 1;
+        let (row, col) = row_col_from_idx(cur_total_idx, icons_per_row);
+        if row >= rows_available
+        {
+            // make new row
+            let mut new_icongrid = image::DynamicImage::new_rgba8(icongrid_img.width(), (row + 1) * icon_size_default);
+            imageops::overlay(&mut new_icongrid, &icongrid_img, 0, 0);
+            icongrid_img = new_icongrid;
+            rows_available = icongrid_img.height() / icon_size_default;
+        }
+
+        // insert as normal
+        let (icon_width, icon_height) = icon.dimensions();
+        let mut insertion_x = col * icon_size_default;
+        let mut insertion_y = row * icon_size_default;
+        if icon_width < icon_size_default
+        {
+            // center icon within area
+            insertion_x += (icon_size_default - icon_width)/2;
+        }
+
+        if icon_height < icon_size_default
+        {
+            // center icon within area
+            insertion_y += (icon_size_default - icon_height)/2;
+        }
+
+        imageops::overlay(&mut icongrid_img, &icon, insertion_x as i64, insertion_y as i64);
     }
 
-    img_to_string(base)
+    encode_image_as_png(icongrid_img)
 }
 
-#[wasm_bindgen]
-pub fn greet(name: &str) -> String {
-    // alert("Hello, rust-img-lib!");
-    format!("Hi there, {name}")
-}
+// #[wasm_bindgen]
+// pub fn greet(name: &str) -> String {
+//     // alert("Hello, rust-img-lib!");
+//     format!("Hi there, {name}")
+// }
