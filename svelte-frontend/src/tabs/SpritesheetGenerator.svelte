@@ -6,8 +6,6 @@
 
     export let wasm: Wasm_T;
     export let charname: string;
-
-    wasm.greet('hi');
 </script>
 
 
