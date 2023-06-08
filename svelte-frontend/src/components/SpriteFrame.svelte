@@ -6,6 +6,8 @@
     let frameCanvas: HTMLCanvasElement;
     let frameDiv: HTMLDivElement;
     export let frameInfo: SpriteFrameData;
+    export let onRangeClick: Function;
+    export let rangeSelectionMode: boolean;
 
     let spriteframesize = 120;
     let showImage = false;
@@ -57,7 +59,15 @@
 
     function handleClick()
     {
-        frameInfo.selected = !frameInfo.selected;
+        if(onRangeClick != null)
+        {
+            onRangeClick();
+        }
+
+        if(!rangeSelectionMode)
+        {
+            frameInfo.selected = !frameInfo.selected;
+        }
     }
 
     function onDelete(sprframe: SpriteFrameData)
@@ -106,7 +116,7 @@
     {#if !showImage}
         <div style="width: {spriteframesize}; height: {spriteframesize}px;"></div>
     {/if}
-    <p>  {frameInfo.animationPrefix}</p>
+    <p>  {frameInfo.animationPrefix}  </p>
     <button on:click|stopPropagation={()=>{ onDelete(frameInfo) }}>Delete</button>
 </div>
 

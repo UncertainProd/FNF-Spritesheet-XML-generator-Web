@@ -15,6 +15,8 @@
     export let wasm: Wasm_T;
     export let charname: string;
 
+    export let rangeSelectionMode = false;
+
     let imgSettings = {
         padding: 2,
         prefixType: 'no-prefix',
@@ -354,6 +356,12 @@
             });
         });
     }
+
+    function activateSelectRange()
+    {
+        rangeSelectionMode = true;
+        document.getElementById('sprite-frames').style.backgroundColor = '#33333333';
+    }
 </script>
 
 <dialog bind:this={progDlg}>
@@ -408,6 +416,7 @@
             <button on:click|stopPropagation={()=>{ animationPrefixModalShown = true; }}>Set animation prefix</button>
             <button on:click|stopPropagation={deleteSelection}>Delete Selection</button>
             <button on:click|stopPropagation={cloneSelection}>Clone Selection</button>
+            <button on:click|stopPropagation={activateSelectRange}>Toggle Select on Range</button>
         </div>
     {/if}
     <button on:click={()=>{ openFileDialog(onPNGAdd, 'image/png', true) }}>Add PNGs</button>
@@ -431,7 +440,7 @@
 
     #view-selection-opts {
         left: 43%;
-        top: -8em;
+        top: -10em;
     }
 
     #controls {
