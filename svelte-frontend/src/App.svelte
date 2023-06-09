@@ -43,12 +43,6 @@
 		padding-right: 5px;
 	}
 
-	/* #options {
-		position: sticky;
-		top: 0;
-		background-color: aqua;
-	} */
-
 	#app-tabs {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
