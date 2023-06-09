@@ -1,9 +1,9 @@
 <!-- https://svelte.dev/examples/modal -->
-<script>
-	export let showModal; // boolean
+<script lang="ts">
+	export let showModal: boolean;
 	export let onClose = ()=>{};
 
-	let dialog; // HTMLDialogElement
+	let dialog: HTMLDialogElement;
 
 	export let closeButtonMsg = "Close";
 
