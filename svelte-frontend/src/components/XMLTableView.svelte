@@ -69,7 +69,6 @@
 
     function onValueChange(e: Event)
     {
-        // console.log("Hellooooo");
         curSprFrame.frameRect.frameX = +_frameXInput.value;
         curSprFrame.frameRect.frameY = +_frameYInput.value;
         curSprFrame.frameRect.frameWidth = +_frameWidthInput.value;

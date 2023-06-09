@@ -233,7 +233,6 @@
         for (let i = 0; i < $spriteframes.length; i++)
         {
             const elem = $spriteframes[i];
-            // console.log(elem);
 
             if(elem.selected)
             {
