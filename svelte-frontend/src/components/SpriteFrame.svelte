@@ -20,7 +20,7 @@
             {
                 if(!showImage)
                 {
-                    // test_div.innerText += ' | showing';
+                    // showing image
                     await loadImage();
                 }
             }
