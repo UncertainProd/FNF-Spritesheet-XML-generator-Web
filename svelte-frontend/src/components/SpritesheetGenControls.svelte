@@ -9,6 +9,7 @@
     import type { Wasm_T } from '../global';
     import SettingsModal from './SettingsModal.svelte';
     import DropUpMenu from './DropUpMenu.svelte';
+    import type { GrowingPacker } from '../../../rust-img-lib/Cargo.toml';
 
     export let wasm: Wasm_T;
     export let charname: string;
@@ -215,7 +216,7 @@
     let genPercent = 0;
     let progTxt = 'Adding images: 0%';
     let progDlg: HTMLDialogElement = null;
-    async function generateSpritesheetXML()
+    async function addImagesToPacker(postAdd: (gp: GrowingPacker) => void)
     {
         console.log(imgSettings);
         if(!(isValidFilename(charname) && isValidFilename(charname + '.zip')))
@@ -312,122 +313,30 @@
                 progTxt = `Adding images: ${Math.round(genPercent * 100)}%`;
             }
 
+            postAdd(growingpacker);
+        });
+    }
+
+    async function generateSpritesheetXML(growingpacker: GrowingPacker)
+    {
+        deferTask(()=>{
+            progTxt = 'Generating spritesheet and XML....';
             deferTask(()=>{
-                progTxt = 'Generating spritesheet and XML....';
-                deferTask(()=>{
-                    const finalImage = growingpacker.make_packed_image();
-                    saveFile(finalImage, charname + '.zip');
-                    progDlg.close();
-                });
+                const finalImage = growingpacker.make_packed_image();
+                saveFile(finalImage, charname + '.zip');
+                progDlg.close();
             });
         });
     }
 
-    async function generateImageSequence()
+    async function generateImageSequence(growingpacker: GrowingPacker)
     {
-        console.log(imgSettings);
-        if(!(isValidFilename(charname) && isValidFilename(charname + '.zip')))
-        {
-            alert("Please enter a valid filename as the name of your character!");
-            return;
-        }
-
-        if($spriteframes.length <= 0)
-        {
-            alert('Please add some images/spritesheets!');
-            return;
-        }
-
-        progTxt = 'Adding images: 0%';
-        genPercent = 0;
-        progDlg.showModal();
-        const { GrowingPacker } = wasm;
-        const growingpacker = GrowingPacker.new(charname, imgSettings.padding);
-
-        const n_steps = Array.from($spritesheet_map.entries()).length + $spriteframes.length;
-        let curStepNumber = 0;
-        
         deferTask(()=>{
-            for(const items of $spritesheet_map)
-            {
-                const key = items[0];
-                const data = items[1][0];
-                console.log("adding " + key + " to store!");
-                growingpacker.add_image_to_store(key, base64DecToArr(data, null));
-                curStepNumber++;
-                genPercent = curStepNumber/n_steps;
-                progTxt = `Adding images: ${Math.round(genPercent * 100)}%`;
-            }
-        });
-        deferTask(async ()=>{
-            let perFramePrefix = '';
-            switch (imgSettings.prefixType) {
-                case 'character-name':
-                    perFramePrefix = charname + ' ';
-                    break;
-                case 'custom-prefix':
-                    perFramePrefix = imgSettings.customPrefix + ' ';
-                    break;
-                default:
-                    break;
-            }
-            for(const sprdat of $spriteframes)
-            {
-                switch (sprdat.type) {
-                    case 'single_frame':
-                        console.log("Reading single frame" + sprdat.sprId);
-                        const abuf = await sprdat.imgfileref.arrayBuffer();
-                        growingpacker.add_single_frame(
-                            // sprdat.sprId,
-                            new Uint8Array(abuf),
-                            perFramePrefix + sprdat.animationPrefix,
-                            sprdat.transform.newWidth,
-                            sprdat.transform.newHeight,
-                            sprdat.transform.flipX,
-                            sprdat.transform.flipY,
-                            BigInt(sprdat.frameRect.frameX),
-                            BigInt(sprdat.frameRect.frameY),
-                            BigInt(sprdat.frameRect.frameWidth),
-                            BigInt(sprdat.frameRect.frameHeight),
-                        );
-                        break;
-                    case 'spritesheet_frame':
-                        console.log("Putting spritesheet frame" + sprdat.sprId);
-                        deferTask(()=>{
-                            growingpacker.add_spritesheet_frame(
-                                // sprdat.sprId,
-                                sprdat.spritesheetId,
-                                ((imgSettings.usePrefixOnXMLFrames) ? perFramePrefix : '') + sprdat.animationPrefix,
-                                sprdat.rect.x,
-                                sprdat.rect.y,
-                                sprdat.rect.width,
-                                sprdat.rect.height,
-                                sprdat.transform.newWidth,
-                                sprdat.transform.newHeight,
-                                sprdat.transform.flipX,
-                                sprdat.transform.flipY,
-                                BigInt(sprdat.frameRect.frameX),
-                                BigInt(sprdat.frameRect.frameY),
-                                BigInt(sprdat.frameRect.frameWidth),
-                                BigInt(sprdat.frameRect.frameHeight)
-                            )
-                        });
-                        break;
-                    default:
-                        break;
-                }
-                curStepNumber++;
-                genPercent = curStepNumber/n_steps;
-                progTxt = `Adding images: ${Math.round(genPercent * 100)}%`;
-            }
-
+            progTxt = 'Zipping individual frames....';
             deferTask(()=>{
-                progTxt = 'Zipping individual frames....';
-                deferTask(()=>{
-                    const finalImage = growingpacker.make_img_sequence(false);
-                    saveFile(finalImage, charname + '.zip');
-                    progDlg.close();
-                });
+                const finalImage = growingpacker.make_img_sequence(false);
+                saveFile(finalImage, charname + '.zip');
+                progDlg.close();
             });
         });
     }
@@ -491,8 +400,8 @@
     <button on:click={()=>{ openFileDialog(onPNGAdd, 'image/png', true) }}>Add PNGs</button>
     <button on:click={()=>{ spritesheetXMLModalShown = true }}>Add Spritesheet</button>
     <DropUpMenu buttonText="Generate">
-        <button on:click={()=>{ generateSpritesheetXML().then(()=>{}) }}>Generate XML</button>
-        <button on:click={()=>{ generateImageSequence().then(()=>{}) }}>Generate PNG sequence</button>
+        <button on:click={()=>{ addImagesToPacker(generateSpritesheetXML).then(()=>{}) }}>Generate XML</button>
+        <button on:click={()=>{ addImagesToPacker(generateImageSequence).then(()=>{}) }}>Generate PNG sequence</button>
     </DropUpMenu>
 </div>
 
