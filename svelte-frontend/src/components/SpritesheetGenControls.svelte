@@ -20,7 +20,8 @@
         padding: 2,
         prefixType: 'no-prefix',
         usePrefixOnXMLFrames: false,
-        customPrefix: ''
+        customPrefix: '',
+        uniqueFramesOnly: false
     };
 
     async function onPNGAdd(e: Event)
@@ -334,7 +335,7 @@
         deferTask(()=>{
             progTxt = 'Zipping individual frames....';
             deferTask(()=>{
-                const finalImage = growingpacker.make_img_sequence(false);
+                const finalImage = growingpacker.make_img_sequence(imgSettings.uniqueFramesOnly);
                 saveFile(finalImage, charname + '.zip');
                 progDlg.close();
             });

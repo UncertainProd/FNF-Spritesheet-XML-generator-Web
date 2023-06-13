@@ -7,7 +7,8 @@
         padding: 2,
         prefixType: 'no-prefix',
         usePrefixOnXMLFrames: false,
-        customPrefix: ''
+        customPrefix: '',
+        uniqueFramesOnly: false
     };
 </script>
 
@@ -41,6 +42,13 @@
         <label for="use-prefix-on-existing-xmls">
             <input bind:checked={settings.usePrefixOnXMLFrames} type="checkbox" name="use-prefix-on-existing-xmls" id="use-prefix-on-existing-xmls">
             Use Prefix even if frame is imported from existing Spritesheet
+        </label>
+
+        <label for="img-seq-gen">Image Sequence Generation</label>
+        <br>
+        <label for="img-seq-gen">
+            <input bind:checked={settings.uniqueFramesOnly} type="checkbox" name="img-seq-gen" id="img-seq-gen">
+            Generate Unique Frames Only when exporting as Image Sequence
         </label>
     </div>
 </Modal>
