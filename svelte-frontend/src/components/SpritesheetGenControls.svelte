@@ -345,7 +345,7 @@
     function activateSelectRange()
     {
         rangeSelectionMode = true;
-        document.getElementById('sprite-frames').style.backgroundColor = '#33333333';
+        document.getElementById('sprite-frames').style.backgroundColor = '#333333';
     }
 </script>
 
@@ -396,7 +396,7 @@
         <button on:click|stopPropagation={()=>{ animationPrefixModalShown = true; }}>Set animation prefix</button>
         <button on:click|stopPropagation={deleteSelection}>Delete Selection</button>
         <button on:click|stopPropagation={cloneSelection}>Clone Selection</button>
-        <button on:click|stopPropagation={activateSelectRange}>Toggle Select on Range</button>
+        <button disabled={$spriteframes.length <= 0} on:click|stopPropagation={activateSelectRange}>Toggle Select on Range</button>
     </DropUpMenu>
     <button on:click={()=>{ openFileDialog(onPNGAdd, 'image/png', true) }}>Add PNGs</button>
     <button on:click={()=>{ spritesheetXMLModalShown = true }}>Add Spritesheet</button>

@@ -47,6 +47,18 @@
             frameInfo._changed = false;
             // console.log("Loading imageee for: " + frameInfo.sprId);
         }
+
+        if(frameDiv)
+        {
+            if(frameInfo.selected)
+            {
+                frameDiv.classList.add('frame-selected');
+            }
+            else
+            {
+                frameDiv.classList.remove('frame-selected');
+            }
+        }
     }
 
     async function loadImage() {
@@ -107,7 +119,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div on:click={handleClick} bind:this={frameDiv} class="frame-container" style="width: {spriteframesize}px;">
+<div on:click={handleClick} bind:this={frameDiv} class="frame-container frame-selected" style="width: {spriteframesize}px;">
     <input type="checkbox" name="selected-chkbox" id="selected-chkbox" checked={frameInfo.selected} />
     <canvas style="display: {(showImage) ? 'block' : 'none'};" width="{spriteframesize}px" height="{spriteframesize}px" bind:this={frameCanvas}>
         Rendering Error!
@@ -122,12 +134,16 @@
 
 <style>
     .frame-container {
-        border: 4px solid black;
+        border: 4px solid var(--accent);
         display: inline-block;
         overflow-x: hidden;
     }
 
     .frame-container:hover {
-        border-color: red;
+        border-color: var(--frame-hovered);
+    }
+
+    .frame-selected {
+        background-color: var(--frame-selected);
     }
 </style>

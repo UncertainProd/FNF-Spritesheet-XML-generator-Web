@@ -56,7 +56,7 @@
         position: absolute;
         display: flex;
         flex-direction: column;
-        background-color: brown;
+        background-color: var(--accent);
         padding: 2px;
         bottom: 100%;
         border-radius: 5px;

@@ -26,7 +26,7 @@
 
 <style>
     .selected {
-        background-color: var(--primary-button);
-        color: black;
+        background-color: var(--secondary-button-emphasized);
+        color: var(--text-on-bright);
     }
 </style>

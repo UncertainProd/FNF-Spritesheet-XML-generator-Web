@@ -50,7 +50,7 @@
 	}
 
 	#tab-container {
-		border: 2px solid red;
+		border: 2px solid var(--border-bright);
 		/* position: relative; */
 	}
 
