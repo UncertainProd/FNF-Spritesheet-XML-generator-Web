@@ -1,5 +1,6 @@
 import App from './App.svelte';
 import wasm from '../../rust-img-lib/Cargo.toml';
+import './styles.css';
 
 const init = async () => {
 	const helloWorldWasm = await wasm();

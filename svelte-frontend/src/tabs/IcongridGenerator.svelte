@@ -138,7 +138,6 @@
         position: sticky;
         z-index: 5;
         bottom: 0;
-        background-color: white;
     }
 
     #controls > * {

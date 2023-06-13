@@ -415,6 +415,18 @@
         position: sticky;
         z-index: 5;
         bottom: 0;
-        background-color: white;
+    }
+
+    @media(max-width: 530px)
+    {
+        #controls {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    label[for="select-all"]
+    {
+        padding-left: 10px;
+        padding-top: 5px;
     }
 </style>

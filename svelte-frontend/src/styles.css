@@ -1,0 +1,29 @@
+:root {
+    --background: #0b0c10;
+    --text: #e4f0f1;
+    --primary-button: #6d8eb7;
+    /* --primary-button: #45a29e; */
+    /* --primary-button: #c5c6c7; */
+    --secondary-button: #1f2833;
+    --accent: #45a29e;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text);
+}
+
+button {
+    border-radius: 5px;
+    background-color: var(--secondary-button);
+    color: var(--text);
+}
+
+button:active {
+    color: #0b0c10;
+}
+
+div {
+    background-color: var(--background);
+    color: var(--text);
+}

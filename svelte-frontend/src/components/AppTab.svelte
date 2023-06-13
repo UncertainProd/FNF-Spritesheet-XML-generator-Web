@@ -1,21 +1,32 @@
-<script>
-    export let id;
-    export let curChoice;
-    export let text;
+<script lang="ts">
+    export let id: string;
+    export let curChoice: string;
+    export let text: string;
+
+    let btn: HTMLButtonElement;
+
+    $: {
+        if(btn)
+        {
+            if(id === curChoice)
+            {
+                btn.classList.add('selected');
+            }
+            else
+            {
+                btn.classList.remove('selected');
+            }
+        }
+    }
 </script>
 
-<label for="tab-{id}" class="tabs" style="background-color: {curChoice == id ? 'blue' : 'white'};">
-    <input type="radio" bind:group={curChoice} name="app-choice" id="tab-{id}" value={id} style="display: none;" />
+<button class="selected" bind:this={btn} on:click={() => { curChoice = id; }}>
     {text}
-</label>
+</button>
 
 <style>
-    .tabs {
-        display: inline;
-        text-align: center;
-	}
-
-	#app-choice-icongrid, #app-choice-spsh {
-		display: none;
-	}
+    .selected {
+        background-color: var(--primary-button);
+        color: black;
+    }
 </style>

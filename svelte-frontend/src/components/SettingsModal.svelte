@@ -13,7 +13,7 @@
 </script>
 
 <Modal bind:showModal={showView}>
-    <h4 slot="header">Settings</h4>
+    <h2 slot="header">Settings</h2>
     <div id="modal-content">
         <label for="padding">Image Padding</label>
         <input type="number" name="padding" id="padding" bind:value={settings.padding} min="0" max="20" />
@@ -43,9 +43,9 @@
             <input bind:checked={settings.usePrefixOnXMLFrames} type="checkbox" name="use-prefix-on-existing-xmls" id="use-prefix-on-existing-xmls">
             Use Prefix even if frame is imported from existing Spritesheet
         </label>
+        <br>
 
         <label for="img-seq-gen">Image Sequence Generation</label>
-        <br>
         <label for="img-seq-gen">
             <input bind:checked={settings.uniqueFramesOnly} type="checkbox" name="img-seq-gen" id="img-seq-gen">
             Generate Unique Frames Only when exporting as Image Sequence
@@ -58,7 +58,7 @@
         width: 60vw;
     }
 
-    h4 {
+    h2 {
         text-align: center;
     }
 </style>
