@@ -92,7 +92,7 @@ pub fn make_icongrid_legacy(icongrid: Vec<u8>, icons: js_sys::Array) -> Vec<u8>
         imageops::overlay(&mut icongrid_img, &icon, insertion_x as i64, insertion_y as i64);
     }
 
-    encode_image_as_png(icongrid_img)
+    encode_image_as_png(&icongrid_img)
 }
 
 // #[wasm_bindgen]

@@ -1,4 +1,4 @@
-use std::{collections::hash_map::DefaultHasher, hash::{Hash, Hasher}};
+use std::{collections::{hash_map::DefaultHasher, HashMap}, hash::{Hash, Hasher}};
 
 use image::{ImageEncoder, GenericImageView, imageops};
 
@@ -15,7 +15,7 @@ pub fn set_panic_hook() {
     console_error_panic_hook::set_once();
 }
 
-pub fn encode_image_as_png(img: image::DynamicImage) -> Vec<u8>
+pub fn encode_image_as_png(img: &image::DynamicImage) -> Vec<u8>
 {
     let mut out_vec = Vec::new();
     let png_encoder = image::codecs::png::PngEncoder::new(&mut out_vec);
@@ -101,6 +101,33 @@ pub fn pad_image_uniform(img: image::DynamicImage, padding: u32) -> image::Dynam
     let mut padded_img = image::DynamicImage::new_rgba8(img.width() + 2*padding, img.height() + 2*padding);
     imageops::overlay(&mut padded_img, &img, padding as i64, padding as i64);
     padded_img
+}
+
+pub struct PrefixCounter
+{
+    prefix_map: HashMap<String, u32>
+}
+
+impl PrefixCounter {
+    pub fn new() -> Self
+    {
+        Self { prefix_map: HashMap::new() }
+    }
+
+    pub fn add_prefix(&mut self, prefix: &str) -> u32
+    {
+        if self.prefix_map.contains_key(prefix)
+        {
+            let prev = *self.prefix_map.get(prefix).expect("Should have a number here");
+            self.prefix_map.insert(prefix.to_string(), prev + 1);
+            return prev + 1;
+        }
+        else
+        {
+            self.prefix_map.insert(prefix.to_string(), 0);
+            return 0;
+        }
+    }
 }
 
 #[derive(Debug)]

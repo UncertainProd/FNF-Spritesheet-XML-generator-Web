@@ -1,6 +1,8 @@
-use std::{str::FromStr, fmt::Debug, path::Path, io::Write, collections::HashMap};
+use std::{str::FromStr, fmt::Debug, path::Path, io::Write};
 
 use quick_xml::{Reader, events::{Event, attributes::Attribute, BytesStart, BytesDecl, BytesText, BytesEnd}, Writer};
+
+use crate::utils::PrefixCounter;
 
 #[allow(dead_code)]
 fn parse_value<T: FromStr>(att: &Attribute) -> T where <T as FromStr>::Err: Debug
@@ -150,7 +152,7 @@ impl TextureAtlas
 
     pub fn write_to<W: Write>(&mut self, writer: W)
     {
-        let mut prefix_map:HashMap<String, u32> = HashMap::new();
+        let mut prefix_counter: PrefixCounter = PrefixCounter::new();
         let mut wr = Writer::new_with_indent(writer, '\t' as u8, 1);
         
         // xml decl
@@ -163,22 +165,11 @@ impl TextureAtlas
 
         // le shameless plug :)
         wr.write_event(Event::Comment(BytesText::new(" Created using the Spritesheet and XML generator "))).unwrap();
-        wr.write_event(Event::Comment(BytesText::new(" github.com/UncertainProd "))).unwrap();
+        wr.write_event(Event::Comment(BytesText::new(" https://uncertainprod.github.io/FNF-Spritesheet-XML-generator-Web "))).unwrap();
 
         for thing in &self.subtextures
         {
-            let anim_suffix_num = prefix_map.get(&thing.name);
-            let anim_suffix_num = match anim_suffix_num {
-                Some(num) => {
-                    let n = *num;
-                    prefix_map.insert(thing.name.clone(), n + 1);
-                    n
-                },
-                None => {
-                    prefix_map.insert(thing.name.clone(), 1);
-                    0
-                }
-            };
+            let anim_suffix_num = prefix_counter.add_prefix(&thing.name);
 
             let mut bys = BytesStart::new("SubTexture");
             let suffix_num = zero_fill_num(anim_suffix_num, 4).unwrap_or(anim_suffix_num.to_string());

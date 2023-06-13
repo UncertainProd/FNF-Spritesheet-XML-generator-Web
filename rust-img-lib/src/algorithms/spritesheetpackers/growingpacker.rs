@@ -2,7 +2,7 @@ use std::{collections::HashMap, io::{self, Write}};
 
 use wasm_bindgen::prelude::*;
 
-use crate::{utils::{PackError, encode_image_as_png, self, transform_image, pad_image_uniform}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}};
+use crate::{utils::{PackError, encode_image_as_png, self, transform_image, pad_image_uniform, PrefixCounter}, algorithms::{PackingRectangle, Packer, FitRect}, textureatlas_format::{self, SubTexture}};
 use image::{imageops, DynamicImage};
 use super::helpers;
 
@@ -240,7 +240,7 @@ impl GrowingPacker
         texture_atlas.subtextures.sort(); // makes sure that animation frame entries in xml are not out of order
         texture_atlas.write_to(&mut xml_bytes);
         
-        let pngbytes = encode_image_as_png(base);
+        let pngbytes = encode_image_as_png(&base);
         
         let mut zip_buf: Vec<u8> = Vec::with_capacity(pngbytes.len());
         let zipcursor = io::Cursor::new(&mut zip_buf);
@@ -258,6 +258,48 @@ impl GrowingPacker
         drop(zip_writer);
 
         return zip_buf;
+    }
+
+    pub fn make_img_sequence(&self, unique_only: bool) -> Vec<u8>
+    {
+        let mut zip_buf: Vec<u8> = Vec::new();
+        let zipcursor = io::Cursor::new(&mut zip_buf);
+        
+        let mut zip_writer = zip::ZipWriter::new(zipcursor);
+        let zip_opts = zip::write::FileOptions::default();
+
+        let mut prefix_counter = PrefixCounter::new();
+
+        if !unique_only
+        {
+            for (imghash, frames) in self.frames.iter()
+            {
+                let img = self.frame_image_cache.cache.get(imghash);
+                if let Some(im) = img {
+                    let pngbytes = encode_image_as_png(im);
+
+                    for f in frames
+                    {
+                        let anim_num = prefix_counter.add_prefix(&f.animation_prefix);
+                        zip_writer.start_file(format!("{}{}.png", f.animation_prefix, anim_num), zip_opts).expect("Error writing to zip!");
+                        zip_writer.write_all(&pngbytes).expect("Zipping error!");
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (imghash, img) in self.frame_image_cache.cache.iter()
+            {
+                let pngbytes = encode_image_as_png(img);
+                zip_writer.start_file(format!("image_frame-{imghash}.png"), zip_opts).expect("Could not start file");
+                zip_writer.write_all(&pngbytes).expect("Could not write png file");
+            }
+        }
+        zip_writer.finish().expect("Error finishing zip!");
+        drop(zip_writer);
+
+        zip_buf
     }
 }
 

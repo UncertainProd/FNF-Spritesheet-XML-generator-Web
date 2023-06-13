@@ -35,7 +35,7 @@ impl IconPacker
             // Note: fit.id is the index in the array so the following code does make sense (but only here) :)
             imageops::overlay(&mut base, &self.images[fit.id as usize], fit.x as i64, fit.y as i64);
         }
-        encode_image_as_png(base)
+        encode_image_as_png(&base)
     }
 }
 
