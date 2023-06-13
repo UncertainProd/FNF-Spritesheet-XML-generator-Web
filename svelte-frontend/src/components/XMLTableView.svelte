@@ -53,10 +53,10 @@
         {
             if(r)
             {
-                r.style.backgroundColor = 'white';
+                r.classList.remove('cell-selected');
             }
         }
-        rows[index].style.backgroundColor = 'blue';
+        rows[index].classList.add('cell-selected');
         _frameXInput.value = '' + curSprFrame.frameRect.frameX;
         _frameYInput.value = '' + curSprFrame.frameRect.frameY;
         _frameWidthInput.value = '' + curSprFrame.frameRect.frameWidth;
@@ -202,7 +202,11 @@
         grid-template-columns: 500px 100%;
         height: 80vh;
         /* width: 700px; */
-        max-width: 95%;
+        width: 90vw;
+    }
+
+    tr:global(.cell-selected) {
+        background-color: var(--light-accent);
     }
 
     #table-div {

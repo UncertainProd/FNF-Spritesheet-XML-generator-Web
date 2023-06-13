@@ -80,7 +80,7 @@
 
 <Modal bind:showModal={showView}>
     <h4 slot="header">View Animation</h4>
-    <div>
+    <div class="anim-view-container">
         <select on:change={()=> {animController.stopAnimation(); animController = animController}} name="anim-prefix" id="anim-prefix" bind:value={selectedOption}>
             {#each prefixArray as prefix (prefix)}
                 <option value="{prefix}">{prefix}</option>
@@ -102,5 +102,8 @@
 </Modal>
 
 <style>
-
+    .anim-view-container {
+        width: 90vw;
+        height: 40vh;
+    }
 </style>
