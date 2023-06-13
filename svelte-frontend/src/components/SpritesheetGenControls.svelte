@@ -381,7 +381,10 @@
     </DropUpMenu>
     <button on:click={()=>{ openFileDialog(onPNGAdd, 'image/png', true) }}>Add PNGs</button>
     <button on:click={()=>{ spritesheetXMLModalShown = true }}>Add Spritesheet</button>
-    <button on:click={()=>{ generateSpritesheetXML().then(()=>{}) }}>Generate XML</button>
+    <DropUpMenu buttonText="Generate">
+        <button on:click={()=>{ generateSpritesheetXML().then(()=>{}) }}>Generate XML</button>
+        <button on:click={()=>{  }}>Generate PNG sequence</button>
+    </DropUpMenu>
 </div>
 
 <style>

@@ -59,5 +59,6 @@
         background-color: brown;
         padding: 2px;
         bottom: 100%;
+        border-radius: 5px;
     }
 </style>
