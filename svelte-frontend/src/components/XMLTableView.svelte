@@ -92,7 +92,7 @@
         <div id="table-div">
             <table class="not-selectable">
                 <thead>
-                    <th></th>
+                    <!-- <th></th> -->
                     <th>Prefix</th>
                     <th>Width</th>
                     <th>Height</th>
@@ -109,9 +109,9 @@
                 <tbody>
                     {#each $spriteframes as spr,i (spr.sprId)}
                         <tr bind:this={rows[i]} on:click|stopPropagation={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
-                            <td>
+                            <!-- <td>
                                 <input type="checkbox" name="select-{spr.sprId}" id="select-{spr.sprId}" on:change={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
-                            </td>
+                            </td> -->
                             <td>{spr.animationPrefix}</td>
                             <td>{spr.rect.width}</td>
                             <td>{spr.rect.height}</td>
@@ -128,105 +128,115 @@
                 </tbody>
             </table>
         </div>
-        <div>
+        <div id="canvas-controls-div">
             <div class="controls-horizontal">
-                <label class="xmlview-input" for="frame-x">
-                    Frame X
-                    <input type="number" name="frame-x" id="frame-x" on:input={onValueChange} bind:this={_frameXInput}>
-                </label>
-                <label class="xmlview-input" for="frame-y">
-                    Frame Y
-                    <input type="number" name="frame-y" id="frame-y" on:input={onValueChange} bind:this={_frameYInput}>
-                </label>
-                <label class="xmlview-input" for="frame-width">
-                    Frame Width
-                    <input type="number" name="frame-width" id="frame-width" on:input={onValueChange} bind:this={_frameWidthInput}>
-                </label>
-                <label class="xmlview-input" for="frame-height">
-                    Frame Height
-                    <input type="number" name="frame-height" id="frame-height" on:input={onValueChange} bind:this={_frameHeightInput}>
-                </label>
-                <label class="xmlview-input" for="scale-x">
-                    Image Width
-                    <input type="number" name="scale-x" id="scale-x" min="1" on:input={onValueChange} bind:this={_newWidthInput}>
-                </label>
-                <label class="xmlview-input" for="scale-y">
-                    Image Height
-                    <input type="number" name="scale-y" id="scale-y" min="1" on:input={onValueChange} bind:this={_newHeightInput}>
-                </label>
-                <label class="xmlview-input" for="flip-x">
-                    Flip X
-                    <input type="checkbox" name="flip-x" id="flip-x" on:input={onValueChange} bind:this={_flipXInput}>
-                </label>
-                <label class="xmlview-input" for="flip-y">
-                    Flip Y
-                    <input type="checkbox" name="flip-y" id="flip-y" on:input={onValueChange} bind:this={_flipYInput}>
-                </label>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="frame-x">
+                        Frame X
+                        <input type="number" name="frame-x" id="frame-x" on:input={onValueChange} bind:this={_frameXInput}>
+                    </label>
+                </div>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="frame-y">
+                        Frame Y
+                        <input type="number" name="frame-y" id="frame-y" on:input={onValueChange} bind:this={_frameYInput}>
+                    </label>
+                </div>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="frame-width">
+                        Frame Width
+                        <input type="number" name="frame-width" id="frame-width" on:input={onValueChange} bind:this={_frameWidthInput}>
+                    </label>
+                </div>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="frame-height">
+                        Frame Height
+                        <input type="number" name="frame-height" id="frame-height" on:input={onValueChange} bind:this={_frameHeightInput}>
+                    </label>
+                </div>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="scale-x">
+                        Image Width
+                        <input type="number" name="scale-x" id="scale-x" min="1" on:input={onValueChange} bind:this={_newWidthInput}>
+                    </label>
+                </div>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="scale-y">
+                        Image Height
+                        <input type="number" name="scale-y" id="scale-y" min="1" on:input={onValueChange} bind:this={_newHeightInput}>
+                    </label>
+                </div>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="flip-x">
+                        Flip X
+                        <input type="checkbox" name="flip-x" id="flip-x" on:input={onValueChange} bind:this={_flipXInput}>
+                    </label>
+                </div>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="flip-y">
+                        Flip Y
+                        <input type="checkbox" name="flip-y" id="flip-y" on:input={onValueChange} bind:this={_flipYInput}>
+                    </label>
+                </div>
 
-                <label class="xmlview-input" for="animation-scale">
-                    Animation Scale
-                    <input bind:this={_animScaleInput} type="number" name="animation-scale" id="animation-scale" min="0.01" step="0.01" on:input={_onAnimationScaleChange}>
-                </label>
+                <div class="xml-input-cell-container">
+                    <label class="xmlview-input" for="animation-scale">
+                        Animation Scale
+                        <input bind:this={_animScaleInput} type="number" name="animation-scale" id="animation-scale" min="0.01" step="0.01" on:input={_onAnimationScaleChange}>
+                    </label>
+                </div>
             </div>
             <div class="canvas-div">
-                <canvas bind:this={canvasElement} width="550px" height="500px"></canvas>
+                <canvas bind:this={canvasElement} width="600px" height="500px"></canvas>
+                <!-- <canvas bind:this={canvasElement}></canvas> -->
             </div>
         </div>
     </div>
 </Modal>
 
 <style>
+    tr:global(.cell-selected) {
+        background-color: var(--light-accent);
+    }
+
     .controls-horizontal {
         display: flex;
         flex-direction: row;
         width: 30rem;
     }
-
     .xmlview-input {
         width: 20%;
         margin-right: 1rem;
     }
-
     .xmlview-input > input {
         width: 5rem;
     }
-
     .canvas-div {
         height: 70vh;
         width: 600px;
         overflow-y: scroll;
     }
-
     #view-container {
         display: grid;
         grid-template-columns: 500px 100%;
         height: 80vh;
         /* width: 700px; */
-        width: 90vw;
+        max-width: 95%;
     }
-
-    tr:global(.cell-selected) {
-        background-color: var(--light-accent);
-    }
-
     #table-div {
         height: inherit;
         overflow-y: scroll;
         position: relative;
     }
-
     table {
         border: 2px solid black;
     }
-
     td, th {
         border: 1px solid black;
     }
-
     canvas {
         border: 2px solid black;
     }
-
     .not-selectable {
         -webkit-touch-callout: none;
         -webkit-user-select: none;
