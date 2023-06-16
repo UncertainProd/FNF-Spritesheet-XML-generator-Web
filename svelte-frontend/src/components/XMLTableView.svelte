@@ -4,12 +4,49 @@
     import { AnimationController } from "../animationcontroller";
     import { onMount } from "svelte";
     import { spriteframes } from '../stores';
+    import { Parser } from 'expr-eval';
 
     export let showView = false;
 
     let currSelectedRow:number|null = null;
     let curSprFrame:SpriteFrameData = null;
 
+    // const frameProperties = [
+    //     'frameX',
+    //     'frameY',
+    //     'frameWidth',
+    //     'frameHeight',
+    // ];
+    // const transformProperties = [
+    //     'newWidth',
+    //     'newHeight',
+    // ];
+    // const boolProperties = [
+    //     'flipX',
+    //     'flipY',
+    // ];
+
+    // type Controls = {
+    //     frameX: HTMLInputElement
+    //     frameY: HTMLInputElement
+    //     frameWidth: HTMLInputElement
+    //     frameHeight: HTMLInputElement
+    //     newWidth: HTMLInputElement
+    //     newHeight: HTMLInputElement
+    //     flipX: HTMLInputElement
+    //     flipY: HTMLInputElement
+    // };
+
+    // const frameControls: Controls = {
+    //     frameX: null,
+    //     frameY: null,
+    //     frameWidth: null,
+    //     frameHeight: null,
+    //     newWidth: null,
+    //     newHeight: null,
+    //     flipX: null,
+    //     flipY: null
+    // };
     let _animScaleInput:HTMLInputElement = null;
     let _frameXInput:HTMLInputElement = null;
     let _frameYInput:HTMLInputElement = null;
@@ -23,10 +60,40 @@
     let rows:HTMLTableRowElement[] = [];
     let canvasElement:HTMLCanvasElement = null;
     let animController:AnimationController = new AnimationController(null);
+
+    let showGroupChangeModal = false;
+
     onMount(()=>{
         animController = new AnimationController(canvasElement.getContext('2d'));
         _animScaleInput.value = ''+animController.animationScale;
     });
+
+    function onKeyPressTable(ev: KeyboardEvent)
+    {
+        ev.preventDefault();
+        switch (ev.key)
+        {
+            case 'ArrowUp':
+                let nextRow = (currSelectedRow - 1 >= 0) ? currSelectedRow - 1 : $spriteframes.length - 1;
+                _handleRowClick(nextRow);
+                break;
+            case 'ArrowDown':
+                let prevRow = (currSelectedRow + 1) % $spriteframes.length;
+                _handleRowClick(prevRow);
+                break;
+            case 'Home':
+                _handleRowClick(0);
+                break;
+            case 'End':
+                _handleRowClick($spriteframes.length - 1);
+                break;
+            default:
+                // console.log(`Selected rows are at: ${selectedRows}`);
+                break;
+        }
+        drawFrameWithBox($spriteframes[currSelectedRow]).then(() => {}); // too lazy to make this whole function async :p
+        rows[currSelectedRow].scrollIntoView(false);
+    }
 
     async function drawFrameWithBox(sprframe: SpriteFrameData)
     {
@@ -57,6 +124,20 @@
             }
         }
         rows[index].style.backgroundColor = 'blue';
+
+        // for(const prop of frameProperties)
+        // {
+        //     frameControls[prop].value = '' + curSprFrame.frameRect[prop];
+        // }
+        // for(const prop of transformProperties)
+        // {
+        //     frameControls[prop].value = '' + curSprFrame.transform[prop];
+        // }
+        // for(const prop of boolProperties)
+        // {
+        //     frameControls[prop].checked = curSprFrame.transform[prop];
+        // }
+
         _frameXInput.value = '' + curSprFrame.frameRect.frameX;
         _frameYInput.value = '' + curSprFrame.frameRect.frameY;
         _frameWidthInput.value = '' + curSprFrame.frameRect.frameWidth;
@@ -69,6 +150,18 @@
 
     function onValueChange(e: Event)
     {
+        // for(const prop of frameProperties)
+        // {
+        //     curSprFrame.frameRect[prop] = frameControls[prop].value;
+        // }
+        // for(const prop of transformProperties)
+        // {
+        //     curSprFrame.transform[prop] = frameControls[prop].value;
+        // }
+        // for(const prop of boolProperties)
+        // {
+        //     curSprFrame.transform[prop] = frameControls[prop].checked;
+        // }
         curSprFrame.frameRect.frameX = +_frameXInput.value;
         curSprFrame.frameRect.frameY = +_frameYInput.value;
         curSprFrame.frameRect.frameWidth = +_frameWidthInput.value;
@@ -81,6 +174,88 @@
         spriteframes.set($spriteframes);
         drawFrameWithBox(curSprFrame).then(()=>{});
     }
+
+    let selectedRows:number[] = [];
+    function onRowChecked(e:Event, idx: number)
+    {
+        const t = e.target as HTMLInputElement;
+        if(t.checked)
+        {
+            selectedRows = [ ...selectedRows, idx ];
+        }
+        else
+        {
+            const ind = selectedRows.indexOf(idx);
+            if(ind >= 0)
+            {
+                selectedRows.splice(ind, 1);
+            }
+            selectedRows = selectedRows;
+        }
+    }
+
+    // let modificationControls: Controls = {
+    //     frameX: null,
+    //     frameY: null,
+    //     frameWidth: null,
+    //     frameHeight: null,
+    //     newWidth: null,
+    //     newHeight: null,
+    //     flipX: null,
+    //     flipY: null,
+    // };
+    let _modifyframeXInput:HTMLInputElement = null;
+    let _modifyframeYInput:HTMLInputElement = null;
+    let _modifyframeWidthInput:HTMLInputElement = null;
+    let _modifyframeHeightInput:HTMLInputElement = null;
+    let _modifynewWidthInput:HTMLInputElement = null;
+    let _modifynewHeightInput:HTMLInputElement = null;
+    let _modifyflipXInput:HTMLInputElement = null;
+    let _modifyflipYInput:HTMLInputElement = null;
+    function applyModification()
+    {
+        const newFrameXValueRaw = _modifyframeXInput.value;
+        const newFrameYValueRaw = _modifyframeYInput.value;
+        const newFrameWidthValueRaw = _modifyframeWidthInput.value;
+        const newFrameHeightValueRaw = _modifyframeHeightInput.value;
+        const newImgWidthValueRaw = _modifynewWidthInput.value;
+        const newImgHeightValueRaw = _modifynewHeightInput.value;
+        const newFlipXValueRaw = _modifyflipXInput.value;
+        const newFlipYValueRaw = _modifyflipYInput.value;
+
+        const mathParser = new Parser({ operators: { logical: true } });
+        const frameXExpr = mathParser.parse(newFrameXValueRaw);
+        const frameYExpr = mathParser.parse(newFrameYValueRaw);
+        const frameWidthExpr = mathParser.parse(newFrameWidthValueRaw);
+        const frameHeightExpr = mathParser.parse(newFrameHeightValueRaw);
+        const imgWidthExpr = mathParser.parse(newImgWidthValueRaw);
+        const imgHeightExpr = mathParser.parse(newImgHeightValueRaw);
+        const flipXExpr = mathParser.parse(newFlipXValueRaw);
+        const flipYExpr = mathParser.parse(newFlipYValueRaw);
+        
+        spriteframes.update((prev) => {
+            for(const idx of selectedRows)
+            {
+                console.log(typeof frameXExpr.evaluate({ value: prev[idx].frameRect.frameX }));
+                console.log(typeof flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
+                console.log(flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
+
+                prev[idx].frameRect.frameX = Math.floor(frameXExpr.evaluate({ value: prev[idx].frameRect.frameX }));
+                prev[idx].frameRect.frameY = Math.floor(frameYExpr.evaluate({ value: prev[idx].frameRect.frameY }));
+                prev[idx].frameRect.frameWidth = Math.floor(frameWidthExpr.evaluate({ value: prev[idx].frameRect.frameWidth }));
+                prev[idx].frameRect.frameHeight = Math.floor(frameHeightExpr.evaluate({ value: prev[idx].frameRect.frameHeight }));
+                prev[idx].transform.newWidth = Math.floor(imgWidthExpr.evaluate({ value: prev[idx].transform.newWidth }));
+                prev[idx].transform.newHeight = Math.floor(imgHeightExpr.evaluate({ value: prev[idx].transform.newHeight }));
+                prev[idx].transform.flipX = !!(flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
+                prev[idx].transform.flipY = !!(flipYExpr.evaluate({ value: (prev[idx].transform.flipY) ? 1 : 0 }));
+                prev[idx]._changed = true;
+            }
+            return prev;
+        });
+        _handleRowClick(currSelectedRow);
+        drawFrameWithBox($spriteframes[currSelectedRow]).then(() => {});
+        selectedRows = [];
+    }
 </script>
 
 
@@ -90,7 +265,7 @@
     </div>
     <div id="view-container">
         <div id="table-div">
-            <table class="not-selectable">
+            <table class="not-selectable" on:keydown={onKeyPressTable}>
                 <thead>
                     <th></th>
                     <th>Prefix</th>
@@ -108,9 +283,9 @@
 
                 <tbody>
                     {#each $spriteframes as spr,i (spr.sprId)}
-                        <tr bind:this={rows[i]} on:click|stopPropagation={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
+                        <tr tabindex="{i}" bind:this={rows[i]} on:click|stopPropagation={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
                             <td>
-                                <input type="checkbox" name="select-{spr.sprId}" id="select-{spr.sprId}" on:change={async (_)=>{ _handleRowClick(i); await drawFrameWithBox(spr); }}>
+                                <input type="checkbox" name="select-{spr.sprId}" id="select-{spr.sprId}" on:change={async (e)=>{ _handleRowClick(i); await drawFrameWithBox(spr); onRowChecked(e, i); }}>
                             </td>
                             <td>{spr.animationPrefix}</td>
                             <td>{spr.rect.width}</td>
@@ -172,6 +347,51 @@
                 <canvas bind:this={canvasElement} width="550px" height="500px"></canvas>
             </div>
         </div>
+    </div>
+    <button on:click={() => showGroupChangeModal = true}>Modify selected</button>
+</Modal>
+
+<Modal bind:showModal={showGroupChangeModal}>
+    <div>
+        <h3>Modify Selection</h3>
+        <div class="controls-horizontal">
+            <label class="xmlview-input" for="mod-frame-x">
+                Frame X
+                <input bind:this={_modifyframeXInput} type="text" name="mod-frame-x" id="mod-frame-x">
+            </label>
+            <label class="xmlview-input" for="mod-frame-y">
+                Frame Y
+                <input bind:this={_modifyframeYInput} type="text" name="mod-frame-y" id="mod-frame-y">
+            </label>
+            <label class="xmlview-input" for="mod-frame-width">
+                Frame Width
+                <input bind:this={_modifyframeWidthInput} type="text" name="mod-frame-width" id="mod-frame-width">
+            </label>
+            <label class="xmlview-input" for="mod-frame-height">
+                Frame Height
+                <input bind:this={_modifyframeHeightInput} type="text" name="mod-frame-height" id="mod-frame-height">
+            </label>
+            <label class="xmlview-input" for="mod-scale-x">
+                Image Width
+                <input bind:this={_modifynewWidthInput} type="text" name="mod-scale-x" id="mod-scale-x" min="1">
+            </label>
+            <label class="xmlview-input" for="mod-scale-y">
+                Image Height
+                <input bind:this={_modifynewHeightInput} type="text" name="mod-scale-y" id="mod-scale-y" min="1">
+            </label>
+            <label class="xmlview-input" for="mod-flip-x">
+                Flip X
+                <input bind:this={_modifyflipXInput} type="text" name="mod-flip-x" id="mod-flip-x">
+            </label>
+            <label class="xmlview-input" for="mod-flip-y">
+                Flip Y
+                <input bind:this={_modifyflipYInput} type="text" name="mod-flip-y" id="mod-flip-y">
+            </label>
+        </div>
+        <button on:click={applyModification}>Modify</button>
+        <p>Note: You can enter a number or an expression like <strong><code>value + 3</code></strong></p>
+        <p>Expressions will be applied on the current value of each cell (by substituting '<code>value</code>')</p>
+        <p>You can flip boolean values by using the expression: '<code><i>not</i> value</code>' (and the only values allowed are <code>true</code> and <code>false</code> )</p>
     </div>
 </Modal>
 
