@@ -170,60 +170,62 @@
         }
     }
 
-    // let modificationControls: Controls = {
-    //     frameX: null,
-    //     frameY: null,
-    //     frameWidth: null,
-    //     frameHeight: null,
-    //     newWidth: null,
-    //     newHeight: null,
-    //     flipX: null,
-    //     flipY: null,
-    // };
-    let _modifyframeXInput:HTMLInputElement = null;
-    let _modifyframeYInput:HTMLInputElement = null;
-    let _modifyframeWidthInput:HTMLInputElement = null;
-    let _modifyframeHeightInput:HTMLInputElement = null;
-    let _modifynewWidthInput:HTMLInputElement = null;
-    let _modifynewHeightInput:HTMLInputElement = null;
-    let _modifyflipXInput:HTMLInputElement = null;
-    let _modifyflipYInput:HTMLInputElement = null;
+    let modificationControls: Controls = {
+        frameX: null,
+        frameY: null,
+        frameWidth: null,
+        frameHeight: null,
+        newWidth: null,
+        newHeight: null,
+        flipX: null,
+        flipY: null,
+    };
     function applyModification()
     {
-        const newFrameXValueRaw = _modifyframeXInput.value;
-        const newFrameYValueRaw = _modifyframeYInput.value;
-        const newFrameWidthValueRaw = _modifyframeWidthInput.value;
-        const newFrameHeightValueRaw = _modifyframeHeightInput.value;
-        const newImgWidthValueRaw = _modifynewWidthInput.value;
-        const newImgHeightValueRaw = _modifynewHeightInput.value;
-        const newFlipXValueRaw = _modifyflipXInput.value;
-        const newFlipYValueRaw = _modifyflipYInput.value;
+        const rawValues = [];
+        for(const prop of frameProperties)
+        {
+            rawValues.push([ prop, modificationControls[prop].value ]);
+        }
+        for(const prop of transformProperties)
+        {
+            rawValues.push([ prop, modificationControls[prop].value ]);
+        }
+        for(const prop of boolProperties)
+        {
+            rawValues.push([ prop, modificationControls[prop].value ]);
+        }
 
         const mathParser = new Parser({ operators: { logical: true } });
-        const frameXExpr = mathParser.parse(newFrameXValueRaw);
-        const frameYExpr = mathParser.parse(newFrameYValueRaw);
-        const frameWidthExpr = mathParser.parse(newFrameWidthValueRaw);
-        const frameHeightExpr = mathParser.parse(newFrameHeightValueRaw);
-        const imgWidthExpr = mathParser.parse(newImgWidthValueRaw);
-        const imgHeightExpr = mathParser.parse(newImgHeightValueRaw);
-        const flipXExpr = mathParser.parse(newFlipXValueRaw);
-        const flipYExpr = mathParser.parse(newFlipYValueRaw);
+
+        const exprs = new Map(rawValues.map(([prp, exprStr]) => {
+            return [prp, mathParser.parse(exprStr)];
+        }));
+        // console.log(exprs);
         
         spriteframes.update((prev) => {
             for(const idx of selectedRows)
             {
-                console.log(typeof frameXExpr.evaluate({ value: prev[idx].frameRect.frameX }));
-                console.log(typeof flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
-                console.log(flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
+                // console.log(typeof frameXExpr.evaluate({ value: prev[idx].frameRect.frameX }));
+                // console.log(typeof flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
+                // console.log(flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
 
-                prev[idx].frameRect.frameX = Math.floor(frameXExpr.evaluate({ value: prev[idx].frameRect.frameX }));
-                prev[idx].frameRect.frameY = Math.floor(frameYExpr.evaluate({ value: prev[idx].frameRect.frameY }));
-                prev[idx].frameRect.frameWidth = Math.floor(frameWidthExpr.evaluate({ value: prev[idx].frameRect.frameWidth }));
-                prev[idx].frameRect.frameHeight = Math.floor(frameHeightExpr.evaluate({ value: prev[idx].frameRect.frameHeight }));
-                prev[idx].transform.newWidth = Math.floor(imgWidthExpr.evaluate({ value: prev[idx].transform.newWidth }));
-                prev[idx].transform.newHeight = Math.floor(imgHeightExpr.evaluate({ value: prev[idx].transform.newHeight }));
-                prev[idx].transform.flipX = !!(flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
-                prev[idx].transform.flipY = !!(flipYExpr.evaluate({ value: (prev[idx].transform.flipY) ? 1 : 0 }));
+                for(const prop of frameProperties)
+                {
+                    console.log(prop);
+                    prev[idx].frameRect[prop] = Math.floor(exprs.get(prop).evaluate({ value: prev[idx].frameRect[prop] }));
+                }
+                for(const prop of transformProperties)
+                {
+                    console.log(prop);
+                    prev[idx].transform[prop] = Math.floor(exprs.get(prop).evaluate({ value: prev[idx].transform[prop] }));
+                }
+                for(const prop of boolProperties)
+                {
+                    console.log(prop);
+                    prev[idx].transform[prop] = !!(exprs.get(prop).evaluate({ value: prev[idx].transform[prop] }));
+                }
+
                 prev[idx]._changed = true;
             }
             return prev;
@@ -333,35 +335,35 @@
         <div class="controls-horizontal">
             <label class="xmlview-input" for="mod-frame-x">
                 Frame X
-                <input bind:this={_modifyframeXInput} type="text" name="mod-frame-x" id="mod-frame-x">
+                <input bind:this={modificationControls.frameX} type="text" name="mod-frame-x" id="mod-frame-x">
             </label>
             <label class="xmlview-input" for="mod-frame-y">
                 Frame Y
-                <input bind:this={_modifyframeYInput} type="text" name="mod-frame-y" id="mod-frame-y">
+                <input bind:this={modificationControls.frameY} type="text" name="mod-frame-y" id="mod-frame-y">
             </label>
             <label class="xmlview-input" for="mod-frame-width">
                 Frame Width
-                <input bind:this={_modifyframeWidthInput} type="text" name="mod-frame-width" id="mod-frame-width">
+                <input bind:this={modificationControls.frameWidth} type="text" name="mod-frame-width" id="mod-frame-width">
             </label>
             <label class="xmlview-input" for="mod-frame-height">
                 Frame Height
-                <input bind:this={_modifyframeHeightInput} type="text" name="mod-frame-height" id="mod-frame-height">
+                <input bind:this={modificationControls.frameHeight} type="text" name="mod-frame-height" id="mod-frame-height">
             </label>
             <label class="xmlview-input" for="mod-scale-x">
                 Image Width
-                <input bind:this={_modifynewWidthInput} type="text" name="mod-scale-x" id="mod-scale-x" min="1">
+                <input bind:this={modificationControls.newWidth} type="text" name="mod-scale-x" id="mod-scale-x" min="1">
             </label>
             <label class="xmlview-input" for="mod-scale-y">
                 Image Height
-                <input bind:this={_modifynewHeightInput} type="text" name="mod-scale-y" id="mod-scale-y" min="1">
+                <input bind:this={modificationControls.newHeight} type="text" name="mod-scale-y" id="mod-scale-y" min="1">
             </label>
             <label class="xmlview-input" for="mod-flip-x">
                 Flip X
-                <input bind:this={_modifyflipXInput} type="text" name="mod-flip-x" id="mod-flip-x">
+                <input bind:this={modificationControls.flipX} type="text" name="mod-flip-x" id="mod-flip-x">
             </label>
             <label class="xmlview-input" for="mod-flip-y">
                 Flip Y
-                <input bind:this={_modifyflipYInput} type="text" name="mod-flip-y" id="mod-flip-y">
+                <input bind:this={modificationControls.flipY} type="text" name="mod-flip-y" id="mod-flip-y">
             </label>
         </div>
         <button on:click={applyModification}>Modify</button>
