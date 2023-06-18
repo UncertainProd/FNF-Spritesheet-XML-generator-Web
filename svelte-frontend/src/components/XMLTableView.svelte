@@ -11,51 +11,43 @@
     let currSelectedRow:number|null = null;
     let curSprFrame:SpriteFrameData = null;
 
-    // const frameProperties = [
-    //     'frameX',
-    //     'frameY',
-    //     'frameWidth',
-    //     'frameHeight',
-    // ];
-    // const transformProperties = [
-    //     'newWidth',
-    //     'newHeight',
-    // ];
-    // const boolProperties = [
-    //     'flipX',
-    //     'flipY',
-    // ];
+    const frameProperties = [
+        'frameX',
+        'frameY',
+        'frameWidth',
+        'frameHeight',
+    ];
+    const transformProperties = [
+        'newWidth',
+        'newHeight',
+    ];
+    const boolProperties = [
+        'flipX',
+        'flipY',
+    ];
 
-    // type Controls = {
-    //     frameX: HTMLInputElement
-    //     frameY: HTMLInputElement
-    //     frameWidth: HTMLInputElement
-    //     frameHeight: HTMLInputElement
-    //     newWidth: HTMLInputElement
-    //     newHeight: HTMLInputElement
-    //     flipX: HTMLInputElement
-    //     flipY: HTMLInputElement
-    // };
+    type Controls = {
+        frameX: HTMLInputElement
+        frameY: HTMLInputElement
+        frameWidth: HTMLInputElement
+        frameHeight: HTMLInputElement
+        newWidth: HTMLInputElement
+        newHeight: HTMLInputElement
+        flipX: HTMLInputElement
+        flipY: HTMLInputElement
+    };
 
-    // const frameControls: Controls = {
-    //     frameX: null,
-    //     frameY: null,
-    //     frameWidth: null,
-    //     frameHeight: null,
-    //     newWidth: null,
-    //     newHeight: null,
-    //     flipX: null,
-    //     flipY: null
-    // };
+    const frameControls: Controls = {
+        frameX: null,
+        frameY: null,
+        frameWidth: null,
+        frameHeight: null,
+        newWidth: null,
+        newHeight: null,
+        flipX: null,
+        flipY: null
+    };
     let _animScaleInput:HTMLInputElement = null;
-    let _frameXInput:HTMLInputElement = null;
-    let _frameYInput:HTMLInputElement = null;
-    let _frameWidthInput:HTMLInputElement = null;
-    let _frameHeightInput:HTMLInputElement = null;
-    let _newWidthInput:HTMLInputElement = null;
-    let _newHeightInput:HTMLInputElement = null;
-    let _flipXInput:HTMLInputElement = null;
-    let _flipYInput:HTMLInputElement = null;
 
     let rows:HTMLTableRowElement[] = [];
     let canvasElement:HTMLCanvasElement = null;
@@ -125,51 +117,35 @@
         }
         rows[index].style.backgroundColor = 'blue';
 
-        // for(const prop of frameProperties)
-        // {
-        //     frameControls[prop].value = '' + curSprFrame.frameRect[prop];
-        // }
-        // for(const prop of transformProperties)
-        // {
-        //     frameControls[prop].value = '' + curSprFrame.transform[prop];
-        // }
-        // for(const prop of boolProperties)
-        // {
-        //     frameControls[prop].checked = curSprFrame.transform[prop];
-        // }
-
-        _frameXInput.value = '' + curSprFrame.frameRect.frameX;
-        _frameYInput.value = '' + curSprFrame.frameRect.frameY;
-        _frameWidthInput.value = '' + curSprFrame.frameRect.frameWidth;
-        _frameHeightInput.value = '' + curSprFrame.frameRect.frameHeight;
-        _newWidthInput.value = '' + curSprFrame.transform.newWidth;
-        _newHeightInput.value = '' + curSprFrame.transform.newHeight;
-        _flipXInput.checked = curSprFrame.transform.flipX;
-        _flipYInput.checked = curSprFrame.transform.flipY;
+        for(const prop of frameProperties)
+        {
+            frameControls[prop].value = '' + curSprFrame.frameRect[prop];
+        }
+        for(const prop of transformProperties)
+        {
+            frameControls[prop].value = '' + curSprFrame.transform[prop];
+        }
+        for(const prop of boolProperties)
+        {
+            frameControls[prop].checked = curSprFrame.transform[prop];
+        }
     }
 
     function onValueChange(e: Event)
     {
-        // for(const prop of frameProperties)
-        // {
-        //     curSprFrame.frameRect[prop] = frameControls[prop].value;
-        // }
-        // for(const prop of transformProperties)
-        // {
-        //     curSprFrame.transform[prop] = frameControls[prop].value;
-        // }
-        // for(const prop of boolProperties)
-        // {
-        //     curSprFrame.transform[prop] = frameControls[prop].checked;
-        // }
-        curSprFrame.frameRect.frameX = +_frameXInput.value;
-        curSprFrame.frameRect.frameY = +_frameYInput.value;
-        curSprFrame.frameRect.frameWidth = +_frameWidthInput.value;
-        curSprFrame.frameRect.frameHeight = +_frameHeightInput.value;
-        curSprFrame.transform.newWidth = +_newWidthInput.value;
-        curSprFrame.transform.newHeight = +_newHeightInput.value;
-        curSprFrame.transform.flipX = _flipXInput.checked;
-        curSprFrame.transform.flipY = _flipYInput.checked;
+        for(const prop of frameProperties)
+        {
+            curSprFrame.frameRect[prop] = +frameControls[prop].value;
+        }
+        for(const prop of transformProperties)
+        {
+            curSprFrame.transform[prop] = +frameControls[prop].value;
+        }
+        for(const prop of boolProperties)
+        {
+            curSprFrame.transform[prop] = frameControls[prop].checked;
+        }
+
         curSprFrame._changed = true;
         spriteframes.set($spriteframes);
         drawFrameWithBox(curSprFrame).then(()=>{});
@@ -307,35 +283,35 @@
             <div class="controls-horizontal">
                 <label class="xmlview-input" for="frame-x">
                     Frame X
-                    <input type="number" name="frame-x" id="frame-x" on:input={onValueChange} bind:this={_frameXInput}>
+                    <input type="number" name="frame-x" id="frame-x" on:input={onValueChange} bind:this={frameControls.frameX}>
                 </label>
                 <label class="xmlview-input" for="frame-y">
                     Frame Y
-                    <input type="number" name="frame-y" id="frame-y" on:input={onValueChange} bind:this={_frameYInput}>
+                    <input type="number" name="frame-y" id="frame-y" on:input={onValueChange} bind:this={frameControls.frameY}>
                 </label>
                 <label class="xmlview-input" for="frame-width">
                     Frame Width
-                    <input type="number" name="frame-width" id="frame-width" on:input={onValueChange} bind:this={_frameWidthInput}>
+                    <input type="number" name="frame-width" id="frame-width" on:input={onValueChange} bind:this={frameControls.frameWidth}>
                 </label>
                 <label class="xmlview-input" for="frame-height">
                     Frame Height
-                    <input type="number" name="frame-height" id="frame-height" on:input={onValueChange} bind:this={_frameHeightInput}>
+                    <input type="number" name="frame-height" id="frame-height" on:input={onValueChange} bind:this={frameControls.frameHeight}>
                 </label>
                 <label class="xmlview-input" for="scale-x">
                     Image Width
-                    <input type="number" name="scale-x" id="scale-x" min="1" on:input={onValueChange} bind:this={_newWidthInput}>
+                    <input type="number" name="scale-x" id="scale-x" min="1" on:input={onValueChange} bind:this={frameControls.newWidth}>
                 </label>
                 <label class="xmlview-input" for="scale-y">
                     Image Height
-                    <input type="number" name="scale-y" id="scale-y" min="1" on:input={onValueChange} bind:this={_newHeightInput}>
+                    <input type="number" name="scale-y" id="scale-y" min="1" on:input={onValueChange} bind:this={frameControls.newHeight}>
                 </label>
                 <label class="xmlview-input" for="flip-x">
                     Flip X
-                    <input type="checkbox" name="flip-x" id="flip-x" on:input={onValueChange} bind:this={_flipXInput}>
+                    <input type="checkbox" name="flip-x" id="flip-x" on:input={onValueChange} bind:this={frameControls.flipX}>
                 </label>
                 <label class="xmlview-input" for="flip-y">
                     Flip Y
-                    <input type="checkbox" name="flip-y" id="flip-y" on:input={onValueChange} bind:this={_flipYInput}>
+                    <input type="checkbox" name="flip-y" id="flip-y" on:input={onValueChange} bind:this={frameControls.flipY}>
                 </label>
 
                 <label class="xmlview-input" for="animation-scale">
