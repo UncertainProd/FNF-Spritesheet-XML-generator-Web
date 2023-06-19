@@ -232,6 +232,28 @@
         });
         _handleRowClick(currSelectedRow);
         drawFrameWithBox($spriteframes[currSelectedRow]).then(() => {});
+
+        showGroupChangeModal = false; // close modal
+
+        const getCheckBox = (childElems: HTMLCollection) => { // helper to get checkbox element of a row
+            for (const kid of childElems) {
+                if(kid.children.length === 1)
+                {
+                    return kid.children[0];
+                }
+            }
+            return null;
+        };
+        
+        for (const rowIndex of selectedRows) {
+            const _row = rows[rowIndex];
+            const chkbx = getCheckBox(_row.children);
+            if(chkbx)
+            {
+                const checkboxElem: HTMLInputElement = chkbx as HTMLInputElement;
+                checkboxElem.checked = false;
+            }
+        }
         selectedRows = [];
     }
 </script>
