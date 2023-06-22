@@ -199,31 +199,43 @@
         const mathParser = new Parser({ operators: { logical: true } });
 
         const exprs = new Map(rawValues.map(([prp, exprStr]) => {
-            return [prp, mathParser.parse(exprStr)];
+            if(exprStr.length > 0)
+            {
+                return [prp, mathParser.parse(exprStr)];
+            }
+            else
+            {
+                return [ prp, null ];
+            }
         }));
         // console.log(exprs);
         
         spriteframes.update((prev) => {
             for(const idx of selectedRows)
             {
-                // console.log(typeof frameXExpr.evaluate({ value: prev[idx].frameRect.frameX }));
-                // console.log(typeof flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
-                // console.log(flipXExpr.evaluate({ value: (prev[idx].transform.flipX) ? 1 : 0 }));
-
                 for(const prop of frameProperties)
                 {
-                    console.log(prop);
-                    prev[idx].frameRect[prop] = Math.floor(exprs.get(prop).evaluate({ value: prev[idx].frameRect[prop] }));
+                    const expr = exprs.get(prop);
+                    if(expr)
+                    {
+                        prev[idx].frameRect[prop] = Math.floor(expr.evaluate({ value: prev[idx].frameRect[prop] }));
+                    }
                 }
                 for(const prop of transformProperties)
                 {
-                    console.log(prop);
-                    prev[idx].transform[prop] = Math.floor(exprs.get(prop).evaluate({ value: prev[idx].transform[prop] }));
+                    const expr = exprs.get(prop);
+                    if(expr)
+                    {
+                        prev[idx].transform[prop] = Math.floor(exprs.get(prop).evaluate({ value: prev[idx].transform[prop] }));
+                    }
                 }
                 for(const prop of boolProperties)
                 {
-                    console.log(prop);
-                    prev[idx].transform[prop] = !!(exprs.get(prop).evaluate({ value: prev[idx].transform[prop] }));
+                    const expr = exprs.get(prop);
+                    if(expr)
+                    {
+                        prev[idx].transform[prop] = !!(exprs.get(prop).evaluate({ value: prev[idx].transform[prop] }));
+                    }
                 }
 
                 prev[idx]._changed = true;
