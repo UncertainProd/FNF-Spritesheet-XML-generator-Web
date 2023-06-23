@@ -104,6 +104,10 @@
 <style>
     .anim-view-container {
         width: 90vw;
-        height: 40vh;
+        height: 20vh;
+    }
+
+    canvas {
+        border: 2px solid var(--text-on-dark);
     }
 </style>
