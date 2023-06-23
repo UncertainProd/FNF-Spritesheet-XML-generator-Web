@@ -316,6 +316,30 @@
             </table>
         </div>
         <div>
+            <div id="mini-table-view">
+                <div class="mini-controls-horizontal">
+                    <button disabled={$spriteframes.length < 1} on:click={async () => { _handleRowClick(((currSelectedRow - 1) < 0 ? $spriteframes.length - 1 : currSelectedRow - 1)); await drawFrameWithBox($spriteframes[currSelectedRow]); }}>&lt; Previous</button>
+                    <table class="not-selectable">
+                        <thead>
+                            <th></th>
+                            <th>Prefix</th>
+                            <th>Width</th>
+                            <th>Height</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input disabled={$spriteframes.length < 1 || currSelectedRow === null} type="checkbox" name="test" id="test" checked={selectedRows.indexOf(currSelectedRow) >= 0} on:change={async (e)=>{ _handleRowClick(currSelectedRow); await drawFrameWithBox($spriteframes[currSelectedRow]); onRowChecked(e, currSelectedRow); }}></td>
+                                <td>{curSprFrame && curSprFrame.animationPrefix}</td>
+                                <td>{curSprFrame && curSprFrame.rect.width}</td>
+                                <td>{curSprFrame && curSprFrame.rect.height}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button disabled={$spriteframes.length < 1} on:click={async () => { _handleRowClick((currSelectedRow + 1) % $spriteframes.length); await drawFrameWithBox($spriteframes[currSelectedRow]); }}>Next &gt;</button>
+                </div>
+                <p>You have selected {selectedRows.length} frames</p>
+                <button disabled={selectedRows.length < 1} on:click={() => showGroupChangeModal = true}>Modify selection</button>
+            </div>
             <div class="controls-horizontal">
                 <label class="xmlview-input" for="frame-x">
                     Frame X
@@ -360,7 +384,7 @@
             </div>
         </div>
     </div>
-    <button on:click={() => showGroupChangeModal = true}>Modify selected</button>
+    <button class="modify-btn-large-screen" on:click={() => showGroupChangeModal = true}>Modify selected</button>
 </Modal>
 
 <Modal bind:showModal={showGroupChangeModal}>
@@ -409,6 +433,12 @@
 
 <style>
     .controls-horizontal {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        width: 30rem;
+    }
+
+    .mini-controls-horizontal {
         display: flex;
         flex-direction: row;
         width: 30rem;
@@ -433,14 +463,43 @@
         display: grid;
         grid-template-columns: 500px 100%;
         height: 80vh;
-        /* width: 700px; */
-        max-width: 95%;
+        max-width: 50%;
     }
 
     #table-div {
         height: inherit;
         overflow-y: scroll;
         position: relative;
+    }
+
+    #mini-table-view {
+        display: none;
+    }
+
+    #mini-table-view > * > table {
+        width: 60%;
+    }
+
+    @media screen and (max-width: 700px) {
+        #table-div {
+            display: none;
+        }
+
+        #mini-table-view {
+            display: block;
+        }
+
+        .modify-btn-large-screen {
+            display: none;
+        }
+
+        .controls-horizontal {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .xmlview-input {
+            font-size: small;
+        }
     }
 
     table {
