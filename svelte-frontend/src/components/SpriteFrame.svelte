@@ -80,6 +80,27 @@
         {
             frameInfo.selected = !frameInfo.selected;
         }
+        else
+        {
+            let _count = 0;
+            const hasSelectedClass = frameDiv.classList.contains('frame-selected');
+            let interId = setInterval(() => {
+                if(_count >= 2)
+                {
+                    clearInterval(interId);
+                    if(hasSelectedClass)
+                    {
+                        frameDiv.classList.add('frame-selected');
+                    }
+                    else
+                    {
+                        frameDiv.classList.remove('frame-selected');
+                    }
+                }
+                frameDiv.classList.toggle('frame-selected');
+                _count++;
+            }, 150);
+        }
     }
 
     function onDelete(sprframe: SpriteFrameData)

@@ -115,7 +115,7 @@
                 r.classList.remove('cell-selected');
             }
         }
-        rows[index].style.backgroundColor = 'blue';
+        rows[index].classList.add('cell-selected');
 
         for(const prop of frameProperties)
         {
