@@ -56,7 +56,6 @@
 
 	#tab-container {
 		border: 2px solid var(--border-color);
-		/* position: relative; */
 	}
 
 	#character-name-control {
