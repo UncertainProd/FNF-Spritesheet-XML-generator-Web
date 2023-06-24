@@ -35,13 +35,14 @@ struct FrameInfo
 
 struct ImageCache
 {
-    cache: HashMap<u64, DynamicImage>
+    cache: HashMap<u64, DynamicImage>,
+    _empty_img_hash: Option<u64>
 }
 
 impl ImageCache {
     pub fn new() -> Self
     {
-        Self { cache: HashMap::new() }
+        Self { cache: HashMap::new(), _empty_img_hash: None }
     }
 
     pub fn add_image(&mut self, img: DynamicImage, padding: u32) -> (u64, (i32, i32, u32, u32))
@@ -59,7 +60,21 @@ impl ImageCache {
                 return (imghash, ((left as i32 - padding as i32), (top as i32 - padding as i32), right + padding, bottom + padding));
             }
             None => {
-                todo!()
+                match self._empty_img_hash {
+                    None => {
+                        let img = image::DynamicImage::new_rgba8(4, 4);
+                        let empty_img_hash = utils::get_hash_from_image_bytes(img.as_bytes());
+                        if !self.cache.contains_key(&empty_img_hash)
+                        {
+                            self.cache.insert(empty_img_hash, img);
+                        }
+                        self._empty_img_hash = Some(empty_img_hash);
+                        return (empty_img_hash, (0, 0, 4, 4));
+                    },
+                    Some(hash) => {
+                        return (hash, (0, 0, 4, 4));
+                    }
+                }
             }
         }
     }
