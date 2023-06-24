@@ -39,8 +39,6 @@
 
 <style>
 	dialog {
-		/* max-width: 40em; */
-		/* max-height: 80vh; */
 		border-radius: 0.2em;
 		border: none;
 		padding: 0;

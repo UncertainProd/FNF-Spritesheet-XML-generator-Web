@@ -45,7 +45,6 @@
         {
             loadImage().then(()=>{});
             frameInfo._changed = false;
-            // console.log("Loading imageee for: " + frameInfo.sprId);
         }
 
         if(frameDiv)
