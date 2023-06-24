@@ -279,7 +279,7 @@
         <div id="table-div">
             <table class="not-selectable" on:keydown={onKeyPressTable}>
                 <thead>
-                    <!-- <th></th> -->
+                    <th></th>
                     <th>Prefix</th>
                     <th>Width</th>
                     <th>Height</th>
