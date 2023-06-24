@@ -458,7 +458,8 @@
         width: 5rem;
     }
     .canvas-div {
-        height: 70vh;
+        position: absolute;
+        height: 65vh;
         width: 600px;
         overflow-y: scroll;
     }
@@ -501,6 +502,10 @@
 
         .xmlview-input {
             font-size: small;
+        }
+
+        .canvas-div {
+            height: 30vh;
         }
     }
 

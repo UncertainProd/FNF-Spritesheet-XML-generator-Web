@@ -75,6 +75,6 @@
 		}
 	}
 	button {
-		display: block;
+		display: inline-block;
 	}
 </style>
