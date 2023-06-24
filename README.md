@@ -3,6 +3,7 @@ An (experimental) online version of the [FnF-Spritesheet-and-XML-Maker](https://
 
 ### This tool can be used online by following [this link](https://uncertainprod.github.io/FNF-Spritesheet-XML-generator-Web). Tested mainly on Chrome and Firefox browsers
 
+
 ![Inital Screen](imgdocs/initScreen.png)
 
 ## How to generate spritesheet and XML files for your character:
