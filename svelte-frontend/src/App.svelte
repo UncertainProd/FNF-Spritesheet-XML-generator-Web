@@ -14,6 +14,11 @@
 
 <main>
 	<h1 id="title">FNF Spritesheet and XML Generator Web (experimental version)</h1>
+
+	<label for="dark-mode">
+		<input type="checkbox" name="dark-mode" id="dark-mode" checked on:change={() => { document.body.classList.toggle('light-mode') }}>
+		Dark Mode
+	</label>
 	
 	<div id="character-name-control">
 		<label for="char-name">
@@ -50,7 +55,7 @@
 	}
 
 	#tab-container {
-		border: 2px solid var(--border-bright);
+		border: 2px solid var(--border-color);
 		/* position: relative; */
 	}
 

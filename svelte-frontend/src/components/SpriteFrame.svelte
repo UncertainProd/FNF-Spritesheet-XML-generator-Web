@@ -155,7 +155,7 @@
 
 <style>
     .frame-container {
-        border: 4px solid var(--accent);
+        border: 4px solid var(--frame-border-color);
         display: inline-block;
         overflow-x: hidden;
     }

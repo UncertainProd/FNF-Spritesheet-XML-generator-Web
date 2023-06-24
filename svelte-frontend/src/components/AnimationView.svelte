@@ -108,6 +108,6 @@
     }
 
     canvas {
-        border: 2px solid var(--text-on-dark);
+        border: 2px solid var(--text-color);
     }
 </style>

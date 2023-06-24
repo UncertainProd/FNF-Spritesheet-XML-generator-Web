@@ -436,7 +436,7 @@
 
 <style>
     tr:global(.cell-selected) {
-        background-color: var(--light-accent);
+        background-color: var(--table-row-selected);
     }
 
     .controls-horizontal {
@@ -516,7 +516,7 @@
         border: 1px solid black;
     }
     canvas {
-        border: 2px solid var(--text-on-dark);
+        border: 2px solid var(--border-color);
     }
     .not-selectable {
         -webkit-touch-callout: none;

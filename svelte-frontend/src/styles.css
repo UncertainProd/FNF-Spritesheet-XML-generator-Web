@@ -1,46 +1,48 @@
 :root {
     --background: #0b0c10;
 
-    --text-on-dark: #e4f0f1;
-    --text-on-bright: #000;
+    --text-color: #e4f0f1;
+    --text-color-2: #000;
+    --border-color: #c5c6c7;
+
+    --frame-border-color: #1a2368;
     
     --secondary-button: #1f2833;
     --secondary-button-emphasized: #6d8eb7;
     
-    --primary-button: #66fcf1;
-    --accent: #1a2368;
-    --light-accent: #1f2833;
-    --border-bright: #c5c6c7;
+    --primary-button: #66fcf1; /* unused for now */
+    --table-row-selected: #1f2833;
     --frame-hovered: #c5c6c7;
     --frame-selected: #556e8c;
 }
 
 .light-mode {
-    --background: #bbc9ff;
+    --background: #b1c1ff;
 
-    --text-on-dark: #000;
-    --text-on-bright: #e4f0f1;
+    --text-color: #000;
+    --text-color-2: #2d2d2d;
+    --border-color: #1c2229;
+
+    --frame-border-color: #2b3aad;
     
-    --secondary-button: #86a6cd;
-    --secondary-button-emphasized: #4f6684;
+    --secondary-button: #446083;
+    --secondary-button-emphasized: #98c6ff;
     
-    --primary-button: #5d87e1;
-    --accent: #1a2368;
-    --light-accent: #7fa5d4;
-    --border-bright: #4d4d4d;
-    --frame-hovered: #3c3c3c;
-    --frame-selected: #003b84;
+    --primary-button: #57b5da; /* unused for now */
+    --table-row-selected: #252b6a;
+    --frame-hovered: #31363c;
+    --frame-selected: #004293;
 }
 
 body {
     background-color: var(--background);
-    color: var(--text-on-dark);
+    color: var(--text-color);
 }
 
 button {
     border-radius: 5px;
     background-color: var(--secondary-button);
-    color: var(--text-on-dark);
+    color: var(--text-color);
 }
 
 button:enabled:active {
@@ -49,5 +51,5 @@ button:enabled:active {
 
 div {
     background-color: var(--background);
-    color: var(--text-on-dark);
+    color: var(--text-color);
 }

@@ -56,7 +56,7 @@
         position: absolute;
         display: flex;
         flex-direction: column;
-        background-color: var(--accent);
+        background-color: var(--secondary-button-emphasized);
         padding: 2px;
         bottom: 100%;
         border-radius: 5px;
