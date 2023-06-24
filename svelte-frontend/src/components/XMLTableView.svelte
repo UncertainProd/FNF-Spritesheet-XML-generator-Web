@@ -383,7 +383,6 @@
             </div>
             <div class="canvas-div">
                 <canvas bind:this={canvasElement} width="600px" height="500px"></canvas>
-                <!-- <canvas bind:this={canvasElement}></canvas> -->
             </div>
         </div>
     </div>
