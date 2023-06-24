@@ -3,6 +3,7 @@
 
     --text-color: #e4f0f1;
     --text-color-2: #000;
+    --button-disabled-text: #979797;
     --border-color: #c5c6c7;
 
     --frame-border-color: #1a2368;
@@ -20,18 +21,19 @@
     --background: #b1c1ff;
 
     --text-color: #000;
-    --text-color-2: #2d2d2d;
-    --border-color: #1c2229;
+    --text-color-2: #222222;
+    --button-disabled-text: #434343;
+    --border-color: #1c291f;
 
-    --frame-border-color: #2b3aad;
+    --frame-border-color: #2bad3c;
     
-    --secondary-button: #446083;
-    --secondary-button-emphasized: #98c6ff;
+    --secondary-button-emphasized: #44834b;
+    --secondary-button: #67ab66;
     
-    --primary-button: #57b5da; /* unused for now */
-    --table-row-selected: #252b6a;
-    --frame-hovered: #31363c;
-    --frame-selected: #004293;
+    /* --primary-button: #57da57; */
+    --table-row-selected: #256a36;
+    --frame-hovered: #0b3c00;
+    --frame-selected: #00930a77;
 }
 
 body {
@@ -47,6 +49,10 @@ button {
 
 button:enabled:active {
     color: #0b0c10;
+}
+
+button:disabled {
+    color: var(--button-disabled-text);
 }
 
 div {

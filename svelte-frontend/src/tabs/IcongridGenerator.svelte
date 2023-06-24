@@ -11,13 +11,26 @@
     let displayImg: HTMLImageElement = null;
     let loadingDlg: HTMLDialogElement = null;
 
+    let controlsDiv: HTMLDivElement = null;
+
     // for legacy version
     let curIcongrid: File = null;
 
-    let _controlsLayout: string;
-
-    // makes `_controlsLayout` update every time `isLegacy` updates
-    $: _controlsLayout = '2fr' + (isLegacy ? ' 1fr 1fr': '') + ' 1fr 1fr 1fr 2fr';
+    $: {
+        if(controlsDiv)
+        {
+            if(isLegacy)
+            {
+                controlsDiv.classList.add('layout-legacy');
+                controlsDiv.classList.remove('layout-normal');
+            }
+            else
+            {
+                controlsDiv.classList.remove('layout-legacy');
+                controlsDiv.classList.add('layout-normal');
+            }
+        }
+    }
 
     async function makeIcongrid()
     {
@@ -108,7 +121,7 @@
     <img bind:this={displayImg} src="" alt={"The " + ((isLegacy) ? "" : "final") + " icongrid will be displayed here."}>
 </div>
 
-<div id="controls" style="grid-template-columns: {_controlsLayout};">
+<div bind:this={controlsDiv} id="controls" class="layout-normal layout-legacy">
     <label for="legacy-mode" id="legacy-mode-label">
         <input type="checkbox" bind:checked={isLegacy} name="legacy-mode" id="legacy-mode" />
         Legacy Mode
@@ -138,6 +151,21 @@
         position: sticky;
         z-index: 5;
         bottom: 0;
+    }
+
+    .layout-normal {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .layout-legacy {
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    @media screen and (max-width: 530px)
+    {
+        .layout-legacy {
+            grid-template-columns: repeat(4, 1fr);
+        }
     }
 
     #controls > * {

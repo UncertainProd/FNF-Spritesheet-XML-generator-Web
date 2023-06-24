@@ -28,5 +28,6 @@
     .selected {
         background-color: var(--secondary-button-emphasized);
         color: var(--text-color-2);
+        border: 2px solid var(--border-color);
     }
 </style>

@@ -417,11 +417,15 @@
         bottom: 0;
     }
 
-    @media(max-width: 530px)
+    @media screen and (max-width: 530px)
     {
         #controls {
             grid-template-columns: repeat(3, 1fr);
         }
+    }
+
+    dialog {
+        background-color: var(--background);
     }
 
     label[for="select-all"]
