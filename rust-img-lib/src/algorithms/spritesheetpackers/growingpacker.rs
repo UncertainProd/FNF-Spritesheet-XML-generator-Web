@@ -30,7 +30,8 @@ struct FrameInfo
     // img_data: Vec<u8>,
     // img_cache_id: u64,
     animation_prefix: String,
-    frame_rect: FrameRectInfo
+    frame_rect: FrameRectInfo,
+    _index: usize
 }
 
 struct ImageCache
@@ -87,7 +88,8 @@ pub struct GrowingPacker
     img_padding: u32,
     frame_image_cache: ImageCache,
     frames: HashMap<u64, Vec<FrameInfo>>,
-    _spritesheet_store: HashMap<String, image::DynamicImage>
+    _spritesheet_store: HashMap<String, image::DynamicImage>,
+    _frame_count: usize
 }
 
 #[wasm_bindgen]
@@ -100,7 +102,8 @@ impl GrowingPacker
             img_padding: padding,
             frame_image_cache: ImageCache::new(),
             frames: HashMap::new(),
-            _spritesheet_store: HashMap::new()
+            _spritesheet_store: HashMap::new(),
+            _frame_count: 0
         }
     }
 
@@ -202,8 +205,10 @@ impl GrowingPacker
                 frame_y: raw_frame_rect.frame_y - (top as i64), 
                 frame_width: raw_frame_rect.frame_width, 
                 frame_height: raw_frame_rect.frame_height
-            }
+            },
+            _index: self._frame_count
         };
+        self._frame_count += 1;
         
         let imgframes = self.frames.get_mut(&imghash);
         match imgframes {
@@ -225,6 +230,7 @@ impl GrowingPacker
         let mut xml_bytes = Vec::new();
         let mut texture_atlas = textureatlas_format::TextureAtlas::default();
         texture_atlas.image_path = self.character_name.clone() + ".png";
+        texture_atlas.subtextures = vec![SubTexture::default(); self._frame_count];
         
         // group frames by id
         for fit in fits
@@ -234,25 +240,22 @@ impl GrowingPacker
             if let Some(frames) = frame_group {
                 for f in frames
                 {
-                    texture_atlas.subtextures.push(
-                        SubTexture::new(
-                            f.animation_prefix.clone(), 
-                            fit.x, 
-                            fit.y, 
-                            fit.width, 
-                            fit.height, 
-                            Some(f.frame_rect.frame_x as i32), 
-                            Some(f.frame_rect.frame_y as i32), 
-                            Some(f.frame_rect.frame_width as u32), 
-                            Some(f.frame_rect.frame_height as u32),
-                            None, // TODO: Test if adding flipX and flipY to xml works in flixel
-                            None
-                        )
+                    texture_atlas.subtextures[f._index] = SubTexture::new(
+                        f.animation_prefix.clone(), 
+                        fit.x, 
+                        fit.y, 
+                        fit.width, 
+                        fit.height, 
+                        Some(f.frame_rect.frame_x as i32), 
+                        Some(f.frame_rect.frame_y as i32), 
+                        Some(f.frame_rect.frame_width as u32), 
+                        Some(f.frame_rect.frame_height as u32),
+                        None, // TODO: Test if adding flipX and flipY to xml works in flixel
+                        None
                     );
                 }
             }
         }
-        texture_atlas.subtextures.sort(); // makes sure that animation frame entries in xml are not out of order
         texture_atlas.write_to(&mut xml_bytes);
         
         let pngbytes = encode_image_as_png(&base);

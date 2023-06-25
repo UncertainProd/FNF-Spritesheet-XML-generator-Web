@@ -150,7 +150,7 @@ impl TextureAtlas
         Self { image_path: img_path, subtextures }
     }
 
-    pub fn write_to<W: Write>(&mut self, writer: W)
+    pub fn write_to<W: Write>(&self, writer: W)
     {
         let mut prefix_counter: PrefixCounter = PrefixCounter::new();
         let mut wr = Writer::new_with_indent(writer, '\t' as u8, 1);
@@ -207,7 +207,7 @@ impl TextureAtlas
 }
 
 // #[derive(Debug, PartialEq, Eq, PartialOrd)]
-#[derive(PartialEq, Eq, PartialOrd)]
+#[derive(PartialEq, Eq, PartialOrd, Clone)]
 pub struct SubTexture
 {
     pub name: String,
