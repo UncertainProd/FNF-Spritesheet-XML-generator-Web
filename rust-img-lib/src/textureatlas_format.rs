@@ -1,5 +1,6 @@
 use std::{str::FromStr, fmt::Debug, path::Path, io::Write};
 
+#[allow(unused_imports)]
 use quick_xml::{Reader, events::{Event, attributes::Attribute, BytesStart, BytesDecl, BytesText, BytesEnd}, Writer};
 
 use crate::utils::PrefixCounter;
