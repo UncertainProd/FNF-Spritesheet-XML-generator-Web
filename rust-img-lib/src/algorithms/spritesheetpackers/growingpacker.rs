@@ -46,13 +46,16 @@ impl ImageCache {
         Self { cache: HashMap::new(), _empty_img_hash: None }
     }
 
-    pub fn add_image(&mut self, img: DynamicImage, padding: u32) -> (u64, (i32, i32, u32, u32))
+    pub fn add_image(&mut self, img: DynamicImage, padding: u32, clip_to_bounding_box: bool) -> (u64, (i32, i32, u32, u32))
     {
         let bounds_opt = utils::get_bounding_box(&img, None);
         match bounds_opt {
             Some((left, top, right, bottom)) => {
-                let cropped_img = img.crop_imm(left, top, right - left, bottom - top);
-                let cropped_img = pad_image_uniform(cropped_img, padding);
+                let mut cropped_img = img;
+                if clip_to_bounding_box {
+                    cropped_img = cropped_img.crop_imm(left, top, right - left, bottom - top);
+                }
+                cropped_img = pad_image_uniform(cropped_img, padding);
                 let imghash = utils::get_hash_from_image_bytes(cropped_img.as_bytes());
                 if !self.cache.contains_key(&imghash)
                 {
@@ -125,6 +128,7 @@ impl GrowingPacker
         frame_y: i64,
         frame_width: u64,
         frame_height: u64,
+        clip_to_bbox: bool
     )
     {
         self._add_frame(
@@ -136,7 +140,8 @@ impl GrowingPacker
                 frame_y, 
                 frame_width, 
                 frame_height
-            }
+            },
+            clip_to_bbox
         );
     }
 
@@ -157,6 +162,7 @@ impl GrowingPacker
         frame_y: i64,
         frame_width: u64,
         frame_height: u64,
+        clip_to_bbox: bool
     )
     {
         let pre_img = self._spritesheet_store
@@ -178,7 +184,8 @@ impl GrowingPacker
                 frame_y, 
                 frame_width, 
                 frame_height 
-            }
+            },
+            clip_to_bbox
         );
     }
 
@@ -187,13 +194,15 @@ impl GrowingPacker
         frame_img: DynamicImage,
         transform: TransformInfo,
         animation_prefix: String,
-        raw_frame_rect: FrameRectInfo
+        raw_frame_rect: FrameRectInfo,
+        clip_to_bbox: bool
     )
     {
         let true_img = transform_image(frame_img, transform);
         let (imghash, (left, top, _right, _bottom)) = self.frame_image_cache.add_image(
             true_img,
-            self.img_padding
+            self.img_padding,
+            clip_to_bbox
         );
 
         let cur_frameinfo = FrameInfo {

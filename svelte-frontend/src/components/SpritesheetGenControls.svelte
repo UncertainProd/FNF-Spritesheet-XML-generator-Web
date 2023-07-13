@@ -21,7 +21,8 @@
         prefixType: 'no-prefix',
         usePrefixOnXMLFrames: false,
         customPrefix: '',
-        uniqueFramesOnly: false
+        uniqueFramesOnly: false,
+        clipToBoundingBox: true
     };
 
     async function onPNGAdd(e: Event)
@@ -282,6 +283,7 @@
                             BigInt(sprdat.frameRect.frameY),
                             BigInt(sprdat.frameRect.frameWidth),
                             BigInt(sprdat.frameRect.frameHeight),
+                            imgSettings.clipToBoundingBox
                         );
                         break;
                     case 'spritesheet_frame':
@@ -302,7 +304,8 @@
                                 BigInt(sprdat.frameRect.frameX),
                                 BigInt(sprdat.frameRect.frameY),
                                 BigInt(sprdat.frameRect.frameWidth),
-                                BigInt(sprdat.frameRect.frameHeight)
+                                BigInt(sprdat.frameRect.frameHeight),
+                                imgSettings.clipToBoundingBox
                             )
                         });
                         break;
