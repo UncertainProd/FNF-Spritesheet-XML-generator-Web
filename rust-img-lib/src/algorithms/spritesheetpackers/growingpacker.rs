@@ -303,10 +303,34 @@ impl GrowingPacker
             {
                 let img = self.frame_image_cache.cache.get(imghash);
                 if let Some(im) = img {
-                    let pngbytes = encode_image_as_png(im);
-
                     for f in frames
                     {
+                        // re-create the exact frame as it would appear in flixel
+
+                        let mut final_dims = (f.frame_rect.frame_width, f.frame_rect.frame_height);
+                        let mut placing_position = (0, 0);
+                        if f.frame_rect.frame_x > 0
+                        {
+                            final_dims.0 += f.frame_rect.frame_x as u64;
+                        }
+                        else
+                        {
+                            placing_position.0 = -f.frame_rect.frame_x;
+                        }
+
+                        if f.frame_rect.frame_y > 0
+                        {
+                            final_dims.1 += f.frame_rect.frame_y as u64;
+                        }
+                        else
+                        {
+                            placing_position.1 = -f.frame_rect.frame_y;
+                        }
+
+                        let mut final_frame = DynamicImage::new_rgba8(final_dims.0 as u32, final_dims.1 as u32);
+                        imageops::overlay(&mut final_frame, im, placing_position.0, placing_position.1);
+                        
+                        let pngbytes = encode_image_as_png(&final_frame);
                         let anim_num = prefix_counter.add_prefix(&f.animation_prefix);
                         zip_writer.start_file(format!("{}{}.png", f.animation_prefix, anim_num), zip_opts).expect("Error writing to zip!");
                         zip_writer.write_all(&pngbytes).expect("Zipping error!");
