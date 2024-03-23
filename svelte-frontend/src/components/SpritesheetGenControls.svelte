@@ -1,6 +1,6 @@
 <script lang="ts">
     import Modal from '../components/Modal.svelte';
-    import { deferTask, getImageDimensions, hashImage, isValidFilename, openFileDialog, saveFile, stringFind, uidgen } from '../utils'
+    import { deferTask, getImageDimensions, hashImage, isValidFilename, openFileDialog, removeNumericSuffix, saveFile, uidgen } from '../utils'
     import AnimationView from './AnimationView.svelte';
     import XmlTableView from './XMLTableView.svelte';
     import { SpriteFrameData } from '../spriteframedata';
@@ -22,7 +22,8 @@
         usePrefixOnXMLFrames: false,
         customPrefix: '',
         uniqueFramesOnly: false,
-        clipToBoundingBox: true
+        clipToBoundingBox: true,
+        xmlAnimPrefixTrimChars: -1,
     };
 
     async function onPNGAdd(e: Event)
@@ -80,10 +81,9 @@
         for(let tex of subtextures)
         {
             const texname = tex.getAttribute('name');
-            const animPrefixIndex = stringFind(texname, (ch) => { return !(ch >= '0' && ch <= '9') }, true);
 
             const newFrame = new SpriteFrameData(curSpritesheet.name + '::' + uidgen.getNewId(), 'spritesheet_frame', curSpritesheet, curXML, imgHash);
-            newFrame.animationPrefix = texname.substring(0, animPrefixIndex + 1);
+            newFrame.animationPrefix = removeNumericSuffix(texname, imgSettings.xmlAnimPrefixTrimChars);
             newFrame.rect = {
                 x: parseInt(tex.getAttribute('x')),
                 y: parseInt(tex.getAttribute('y')),

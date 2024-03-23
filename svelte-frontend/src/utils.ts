@@ -48,36 +48,49 @@ export function saveFile(content: Uint8Array, name: string):void
 }
 
 /**
- * Finds the first index where the given predicate function returns true
- * 
- * @param {string} str 
- * @param {(s: string)=>boolean} predicate 
- * @param {boolean} reverse
- * @returns {number|null} The first index where the predicate returns true. `null` if no such index exists
+ * Removes a contiguous sequence of digits from the end of the string, upto a limit
+ * @param str The string to be processed
+ * @param limit The maximum number of digits that need to be trimmed from the end of the string (a value of `-1` means to remove as many digits from the end as possible)
  */
-export function stringFind(str: string, predicate: (s:string)=>boolean, reverse: boolean = false):number|null
+export function removeNumericSuffix(str: string, limit:number)
 {
-    if(!reverse)
+    if(limit === -1)
     {
-        for(let i = 0; i < str.length; i++)
+        let endIndex = str.length - 1;
+        for(let i = str.length - 1; i >= 0; i--)
         {
-            if(predicate(str[i]))
+            const ch = str[i];
+            if(!(ch >= '0' && ch <= '9'))
             {
-                return i;
+                endIndex = i;
+                break;
             }
         }
+        const result = str.substring(0, endIndex+1);
+        return result;
     }
     else
     {
+        let endIndex = str.length - 1;
+        let nCharsChecked = 0;
         for(let i = str.length - 1; i >= 0; i--)
         {
-            if(predicate(str[i]))
+            if(nCharsChecked >= limit)
             {
-                return i;
+                endIndex = i;
+                break;
             }
+            const ch = str[i];
+            if(!(ch >= '0' && ch <= '9'))
+            {
+                endIndex = i;
+                break;
+            }
+            nCharsChecked++;
         }
+        const result = str.substring(0, endIndex+1);
+        return result;
     }
-    return null;
 }
 
 /**
