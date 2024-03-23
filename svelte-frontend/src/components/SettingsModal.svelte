@@ -9,7 +9,8 @@
         usePrefixOnXMLFrames: false,
         customPrefix: '',
         uniqueFramesOnly: false,
-        clipToBoundingBox: true
+        clipToBoundingBox: true,
+        xmlAnimPrefixTrimChars: -1,
     };
 </script>
 
@@ -53,6 +54,11 @@
             <label for="use-prefix-on-existing-xmls">
                 <input bind:checked={settings.usePrefixOnXMLFrames} type="checkbox" name="use-prefix-on-existing-xmls" id="use-prefix-on-existing-xmls">
                 Use Prefix even if frame is imported from existing Spritesheet
+            </label>
+            <br>
+            <label for="n-trim-chars-xml">
+                <input type="number" name="n-trim-chars-xml" id="n-trim-chars-xml" min="-1" max="10" bind:value={settings.xmlAnimPrefixTrimChars}>
+                Number of digits to trim from the end while importing existing spritesheets
             </label>
         </fieldset>
         <br />

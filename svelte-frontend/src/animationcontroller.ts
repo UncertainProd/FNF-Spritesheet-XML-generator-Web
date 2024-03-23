@@ -127,12 +127,42 @@ export class AnimationController {
 
     }
 
+    async _prepFrameImages()
+    {
+        // avoid repeatedly making html Image elements from big spritesheet images. cache them here instead
+        const imgCache: Map<string, HTMLImageElement> = new Map();
+        for (const frame of this.curFrames)
+        {
+            let curimg = null;
+            if(frame.type === 'spritesheet_frame')
+            {
+                if(!imgCache.has(frame.spritesheetId))
+                {
+                    const himg = await makeImage(frame);
+                    imgCache.set(frame.spritesheetId, himg);
+                    curimg = himg;
+                }
+                else
+                {
+                    curimg = imgCache.get(frame.spritesheetId);
+                }
+            }
+            else
+            {
+                curimg = await makeImage(frame);
+            }
+
+            this.curImgs.push(curimg);
+        }
+    }
+
     async initFrames(frames: SpriteFrameData[])
     {
         // console.log("Playing animation....")
         this.curFrames = frames;
         this.curFrameIndex = 0;
-        this.curImgs = await Promise.all(this.curFrames.map(async (elem) => { let img = await makeImage(elem); return img; }));
+        this.curImgs = [];
+        await this._prepFrameImages();
     }
 
     play()
